@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Startup Scoring Engine
 
 A multi-pillar scoring system designed for **Pre-Seed** and **Seed** stage startups. This engine extracts and processes metrics from pitch decks and founder forms to provide an aggregate suitability score and detailed pillar reports.
@@ -72,3 +73,6 @@ pip install fastapi uvicorn pydantic numpy scikit-learn sentence-transformers re
 ## 📄 Documentation
 
 For a detailed breakdown of changes and verification results, see [walkthrough.md](walkthrough.md).
+=======
+https://docs.google.com/document/d/13xW7fnygW9QwYg89WbnNWSqSg6Mwrb4oCbEcxgv8Sug/edit?tab=t.q33557f2wrq2 
+>>>>>>> 383adb830ab201b4715afa56edb6f9999da0072c
