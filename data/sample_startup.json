@@ -1,0 +1,44 @@
+{
+    "company_name": "Appendix Alpha",
+    "company_stage": "Seed",
+    "product_type": "B2B SaaS",
+    "market_type": "B2B SaaS",
+    "geographic_focus": [
+        "North America"
+    ],
+    "custom_build_level": "Yes – largely custom-built",
+    "patent_status": "pending",
+    "startup_features": [
+        "AI-powered fraud detection dashboard",
+        "Automated compliance reporting",
+        "Multi-bank integration"
+    ],
+    "competitors": [
+        {
+            "name": "Comp A",
+            "feature_list": [
+                "Fraud detection",
+                "Compliance reporting"
+            ]
+        },
+        {
+            "name": "Comp B",
+            "feature_list": [
+                "Real-time fraud monitoring",
+                "Automated reports"
+            ]
+        }
+    ],
+    "web_growth_rate": 20.0,
+    "social_growth_rate": 6.0,
+    "waitlist_prev": 600,
+    "waitlist_curr": 800,
+    "beta_prev": 100,
+    "beta_curr": 150,
+    "unique_visitors_curr": 5000,
+    "total_revenue": 50000.0,
+    "active_users": 1000,
+    "prev_revenue": 40000.0,
+    "pricing_model_type": "Subscription",
+    "paying_segment": "Enterprise clients"
+}
