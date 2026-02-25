@@ -49,8 +49,11 @@ pip install fastapi uvicorn pydantic numpy scikit-learn sentence-transformers re
      "company_name": "Example Startup",
      "company_stage": "Seed",
      "product_type": "B2B SaaS",
-     ...
-   }
+### Option 2: API
+1. Start the server: `python api.py`
+2. Send a request:
+   ```bash
+   curl -X POST http://127.0.0.1:8000/score -H "Content-Type: application/json" -d @data/sample_startup.json
    ```
 
 ### Running via CLI
@@ -60,6 +63,26 @@ pip install fastapi uvicorn pydantic numpy scikit-learn sentence-transformers re
    ```bash
    python FINAL_SCORE.py
    ```
+
+## 🐳 Deployment (Docker)
+
+To deploy the scoring engine using Docker for consistent cross-environment behavior:
+
+1. **Build the image**:
+   ```bash
+   docker build -t scoring-engine .
+   ```
+2. **Run the container**:
+   ```bash
+   docker run -p 8000:8000 scoring-engine
+   ```
+
+Alternatively, use **Docker Compose**:
+```bash
+docker-compose up --build
+```
+
+The Docker image includes the pre-downloaded embedding model to ensure the first request is fast.
 
 ## 📊 Scoring Logic (Appendix)
 

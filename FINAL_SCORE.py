@@ -53,7 +53,9 @@ def get_final_scores(startup_data: Dict) -> Dict:
 
 if __name__ == "__main__":
     # Test with sample data
-    with open("sample_startup.json", "r") as f:
+    import os
+    data_path = os.path.join("data", "sample_startup.json")
+    with open(data_path, "r") as f:
         data = json.load(f)
     
     final_report = get_final_scores(data)
