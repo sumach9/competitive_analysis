@@ -37,7 +37,9 @@ BENCHMARK_TABLE: dict[str, dict] = {
         "web_low": 4.0, "web_high": 20.0,
         "social_low": 3.0, "social_high": 15.0,
         "w_web": 0.40, "w_soc": 0.60,
-    },
+    },cd C:\Users\polak\research
+git clone https://github.com/sumach9/competitive_analysis.git temp_copy
+cd temp_copy
     "Marketplace": {
         "web_low": 3.0, "web_high": 12.0,
         "social_low": 2.0, "social_high": 8.0,
