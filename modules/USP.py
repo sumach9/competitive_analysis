@@ -1,154 +1,355 @@
-import re
-import numpy as np
-from typing import List, Dict
-from sklearn.metrics.pairwise import cosine_similarity
-from sentence_transformers import SentenceTransformer
-from difflib import SequenceMatcher
+"""
+FFP Smart MVP — Pillar 1: USP / Differentiating Factor
+=======================================================
+Weight: 35% of composite score (Pre-Seed)
 
-# Load embedding model once
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+Automation flow:
+  1. Receive founder Q1 inputs: feature_list[], unique_feature_list[], competitors[]
+  2. Optionally enrich competitor metadata via PitchBook API (display only, no scoring)
+  3. For each competitor URL → Tavily Extract API (scrape page text)
+  4. For each scraped page → Gemini 2.0 Flash (temp=0) → disputed_features[]
+  5. Compute USP_Score = verified / claimed × 100
+  6. Assign Confidence Flag and pillar score via lookup table
+  7. Return all stored output fields
 
-# -----------------------------
-# Utility Functions
-# -----------------------------
+CRITICAL: denominator = unique_feature_claim_count (NOT total_feature_count).
+"""
 
-def normalize_feature(text: str) -> str:
+import json
+import os
+import requests
+from typing import Optional
+
+
+# ──────────────────────────────────────────────
+# Constants
+# ──────────────────────────────────────────────
+TAVILY_EXTRACT_URL = "https://api.tavily.com/extract"
+GEMINI_URL = (
+    "https://generativelanguage.googleapis.com/v1beta"
+    "/models/gemini-2.0-flash:generateContent"
+)
+DATA_PROVENANCE_NOTE = (
+    "Claims auto-verified against competitor pages. "
+    "Competitor metadata from PitchBook."
+)
+
+# Pillar score lookup table (USP_Score %, Confidence) → pillar_score
+# Rows evaluated in order; first match wins.
+_PILLAR_SCORE_TABLE = [
+    # (usp_min, usp_max, confidence_set or None, pillar_score, dashboard_status)
+    (80, 100, None,           90, "Strong differentiation — verified"),
+    (60,  79, {"HIGH"},       78, "Good differentiation — verified"),
+    (60,  79, {"MEDIUM"},     62, "Good differentiation — partial verification"),
+    (30,  59, None,           55, "Moderate differentiation"),
+    (1,   29, None,           35, "Limited differentiation — few claims verified"),
+    (0,    0, None,           20, "No uniqueness verified — NEUTRAL, not a fail"),
+]
+
+
+# ──────────────────────────────────────────────
+# External API helpers
+# ──────────────────────────────────────────────
+
+def _tavily_extract(url: str, api_key: str) -> Optional[str]:
     """
-    Clean and normalize feature text by removing marketing adjectives and punctuation
+    Call Tavily Extract API for a single competitor URL.
+    Returns clean page text or None on failure.
     """
-    text = text.lower()
-    
-    marketing_words = [
-        "ai-powered", "advanced", "best", "next-gen",
-        "cutting-edge", "real-time", "powerful",
-        "innovative", "seamless", "intelligent", "smart",
-        "revolutionary", "state-of-the-art", "world-class",
-        "high-performance", "robust", "scalable", "dynamic",
-        "flexible", "fast", "easy-to-use", "game-changing",
-        "predictive", "automated", "effortless", "proactive",
-        "integrated", "modular", "cloud-based", "ultra-fast",
-        "hyper-personalized", "multi-platform", "enterprise-grade",
-        "next-level", "leading", "optimized"
-    ]
-    
-    for word in marketing_words:
-        text = text.replace(word, "")
-    
-    text = re.sub(r'[^a-z0-9\s]', '', text)
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
+    try:
+        resp = requests.post(
+            TAVILY_EXTRACT_URL,
+            headers={"Authorization": f"Bearer {api_key}"},
+            json={"urls": [url]},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        results = resp.json().get("results", [])
+        if results and results[0].get("raw_content"):
+            return results[0]["raw_content"]
+        return None
+    except Exception:
+        return None
 
-def token_similarity(a: str, b: str) -> float:
-    return SequenceMatcher(None, a, b).ratio()
 
-# -----------------------------
-# USP Engine
-# -----------------------------
-
-def compute_usp_score(startup_features: List[str],
-                      competitors: List[Dict]) -> Dict:
-    
-    # Step 1: Normalize & deduplicate
-    startup_features = list(set(normalize_feature(f) for f in startup_features if f.strip()))
-    total_features = len(startup_features)
-    if total_features == 0:
-        return {
-            "total_feature_count": 0,
-            "validated_unique_feature_count": 0,
-            "overlap_feature_count": 0,
-            "uniqueness_ratio": 0,
-            "confidence_score": 0,
-            "final_usp_score": 0,
-            "borderline_features": [],
-            "needs_human_review": True
-        }
-    
-    if len(startup_features) > 25:  # Cap features to prevent inflation
-        startup_features = startup_features[:25]
-        total_features = len(startup_features)
-    
-    # Step 2: Collect competitor features
-    competitor_features = []
-    for comp in competitors:
-        competitor_features.extend(normalize_feature(f) for f in comp.get("feature_list", []))
-    competitor_features = list(set(competitor_features))
-    
-    # Step 2A: Token matching
-    overlap_features = set()
-    remaining_features = []
-    for sf in startup_features:
-        if any(sf == cf or token_similarity(sf, cf) > 0.70 for cf in competitor_features):
-            overlap_features.add(sf)
-        else:
-            remaining_features.append(sf)
-    
-    # Step 2B: Embedding similarity
-    borderline_features = []
-    unique_features = []
-    if competitor_features and remaining_features:
-        comp_embeddings = embedding_model.encode(competitor_features)
-        for sf in remaining_features:
-            sf_embedding = embedding_model.encode([sf])
-            similarities = cosine_similarity(sf_embedding, comp_embeddings)[0]
-            max_sim = np.max(similarities)
-            if max_sim >= 0.80:
-                overlap_features.add(sf)
-            elif 0.75 <= max_sim < 0.80:
-                borderline_features.append(sf)
-                unique_features.append(sf)
-            else:
-                unique_features.append(sf)
-    else:
-        unique_features = remaining_features
-    
-    validated_unique_count = len(unique_features)
-    overlap_count = total_features - validated_unique_count
-    uniqueness_ratio = validated_unique_count / total_features  # 0–1
-    
-    # -----------------------------
-    # Dynamic confidence scoring
-    # -----------------------------
-    # Factors: competitor count, feature coverage, validated uniqueness
-    
-    competitor_factor = min(len(competitors) / 5, 1.0)   # >=5 competitors → 1
-    coverage_factor = min(len(competitor_features) / (total_features * 2), 1.0)  # how well competitor features cover domain
-    uniqueness_factor = uniqueness_ratio  # higher unique features → higher confidence
-    
-    # Combine dynamically
-    confidence_score = (0.4 * competitor_factor + 0.4 * coverage_factor + 0.2 * uniqueness_factor)
-    
-    # Final USP Score = uniqueness_ratio * confidence_score
-    final_usp_score = uniqueness_ratio * confidence_score * 100  # percentage
-    
-    # -----------------------------
-    # Human review conditions
-    # -----------------------------
-    needs_review = len(borderline_features) >= 2 or len(competitors) < 2 or total_features > 25
-    
-    return {
-        "total_feature_count": total_features,
-        "validated_unique_feature_count": validated_unique_count,
-        "overlap_feature_count": overlap_count,
-        "uniqueness_ratio": round(uniqueness_ratio*100, 2),
-        "confidence_score": round(confidence_score, 2),
-        "final_usp_score": round(final_usp_score, 2),
-        "borderline_features": borderline_features,
-        "needs_human_review": needs_review
+def _gemini_find_disputed(
+    unique_features: list[dict],
+    page_text: str,
+    api_key: str,
+) -> list[str]:
+    """
+    Call Gemini 2.0 Flash (temperature=0) to identify which claimed unique
+    features are EXPLICITLY described in the competitor page text.
+    Returns list of disputed feature_name strings.
+    """
+    system_instruction = (
+        "You are a product feature comparator. You receive a list of claimed unique "
+        "features and the scraped text of a competitor product page. Your ONLY task: "
+        "identify which claimed features are EXPLICITLY DESCRIBED in the competitor "
+        "page text. Do NOT infer. Do NOT guess. Only flag a feature if it is clearly "
+        "and directly described on the page. Return JSON only: "
+        '{"disputed_features": ["feature_name_1"]}. '
+        "Return an empty array if none found. No other text."
+    )
+    feature_payload = json.dumps([
+        {"feature_name": f["feature_name"], "description": f["description"]}
+        for f in unique_features
+    ])
+    user_message = (
+        f"UNIQUE FEATURES TO CHECK:\n{feature_payload}\n\n"
+        f"COMPETITOR PAGE TEXT:\n{page_text[:8000]}\n\n"  # guard token limit
+        "Return JSON only."
+    )
+    payload = {
+        "system_instruction": {"parts": [{"text": system_instruction}]},
+        "contents": [{"parts": [{"text": user_message}]}],
+        "generationConfig": {"temperature": 0.0, "maxOutputTokens": 512},
     }
-    # -----------------------------
-# Example Usage
-# -----------------------------
-if __name__ == "__main__":
-    startup_features = [
-        "AI-powered fraud detection dashboard",
-        "Automated compliance reporting",
-        "Multi-bank integration"
+    try:
+        resp = requests.post(
+            f"{GEMINI_URL}?key={api_key}",
+            headers={"Content-Type": "application/json"},
+            json=payload,
+            timeout=20,
+        )
+        resp.raise_for_status()
+        raw = (
+            resp.json()
+            .get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [{}])[0]
+            .get("text", "{}")
+        )
+        # Strip markdown fences if present
+        raw = raw.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
+        data = json.loads(raw)
+        return data.get("disputed_features", [])
+    except Exception:
+        return []
+
+
+def _pitchbook_enrich(domain: str, api_key: str) -> dict:
+    """
+    Enrich a competitor entry via PitchBook API by domain.
+    Returns display metadata only — NOT used in scoring.
+    """
+    if not domain or not api_key:
+        return {}
+    try:
+        # Step 1: lookup company ID by domain
+        lookup = requests.get(
+            "https://api.pitchbook.com/companies",
+            headers={"Authorization": f"Bearer {api_key}"},
+            params={"domain": domain},
+            timeout=10,
+        )
+        lookup.raise_for_status()
+        companies = lookup.json().get("data", [])
+        if not companies:
+            return {}
+        company_id = companies[0].get("id")
+        if not company_id:
+            return {}
+        # Step 2: fetch enrichment
+        detail = requests.get(
+            f"https://api.pitchbook.com/companies/{company_id}",
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=10,
+        )
+        detail.raise_for_status()
+        d = detail.json()
+        return {
+            "sector": d.get("primarySector"),
+            "stage": d.get("stage"),
+            "description": d.get("shortDescription"),
+        }
+    except Exception:
+        return {}
+
+
+# ──────────────────────────────────────────────
+# Confidence Flag Logic
+# ──────────────────────────────────────────────
+
+def _compute_confidence_flag(
+    competitors_submitted: int,
+    scraped_count: int,
+    skipped_count: int,
+) -> str:
+    """
+    HIGH  — ≥3 competitor URLs successfully scraped
+    MEDIUM — ≥3 competitors submitted but exactly 1 SKIPPED (≥2 scraped)
+    LOW   — fewer than 3 competitors successfully scraped
+    """
+    if scraped_count >= 3:
+        return "HIGH"
+    if competitors_submitted >= 3 and skipped_count == 1 and scraped_count >= 2:
+        return "MEDIUM"
+    return "LOW"
+
+
+# ──────────────────────────────────────────────
+# Pillar Score Lookup
+# ──────────────────────────────────────────────
+
+def _lookup_pillar_score(usp_score: float, confidence: str) -> tuple[int, str]:
+    """Map (USP_Score, Confidence) → (pillar_score, dashboard_status)."""
+    for usp_min, usp_max, conf_set, score, status in _PILLAR_SCORE_TABLE:
+        if usp_min <= usp_score <= usp_max:
+            if conf_set is None or confidence in conf_set:
+                return score, status
+    return 20, "No uniqueness verified — NEUTRAL, not a fail"
+
+
+# ──────────────────────────────────────────────
+# Main Entry Point
+# ──────────────────────────────────────────────
+
+def compute_usp_score(
+    feature_list: list[str],
+    unique_feature_list: list[dict],
+    competitors: list[dict],
+    tavily_api_key: str = "",
+    gemini_api_key: str = "",
+    pitchbook_api_key: str = "",
+) -> dict:
+    """
+    Compute the USP pillar score.
+
+    Parameters
+    ----------
+    feature_list : list[str]
+        All product features (unique and non-unique). Used for context only.
+    unique_feature_list : list[dict]
+        Each entry: {feature_name, description, not_in_competitors[], own_product_url?}
+    competitors : list[dict]
+        Each entry: {name, product_url, domain?}
+    tavily_api_key : str
+        Tavily Extract API key (Bearer token).
+    gemini_api_key : str
+        Gemini 2.0 Flash API key (Google AI Studio).
+    pitchbook_api_key : str
+        PitchBook Direct Data API key. Optional — used for display enrichment only.
+
+    Returns
+    -------
+    dict with all stored output fields defined in the spec.
+    """
+    # ── Guard: InsufficientData
+    if not feature_list or not unique_feature_list:
+        return {
+            "USP_Score": None,
+            "unique_feature_claim_count": len(unique_feature_list),
+            "verified_unique_feature_count": None,
+            "disputed_features": [],
+            "skipped_competitors": [],
+            "Confidence_Flag": "LOW",
+            "pitchbook_competitor_data": [],
+            "compute_status": "InsufficientData",
+            "pillar_score": None,
+            "dashboard_status": "InsufficientData",
+            "data_provenance_note": DATA_PROVENANCE_NOTE,
+        }
+
+    unique_feature_claim_count = len(unique_feature_list)
+
+    # ── PitchBook enrichment (display only)
+    pitchbook_competitor_data = []
+    for comp in competitors:
+        domain = comp.get("domain", "")
+        meta = _pitchbook_enrich(domain, pitchbook_api_key)
+        pitchbook_competitor_data.append({
+            "name": comp.get("name"),
+            "sector": meta.get("sector"),
+            "stage": meta.get("stage"),
+            "description": meta.get("description"),
+        })
+
+    # ── Tavily Extract per competitor URL
+    scraped_pages: list[dict] = []   # {name, url, text}
+    skipped_competitors: list[dict] = []
+
+    for comp in competitors:
+        url = comp.get("product_url", "")
+        name = comp.get("name", "")
+        if not url:
+            skipped_competitors.append({"name": name, "url": url, "reason": "No URL provided"})
+            continue
+
+        text = _tavily_extract(url, tavily_api_key)
+        if text:
+            scraped_pages.append({"name": name, "url": url, "text": text})
+        else:
+            # Retry once
+            text = _tavily_extract(url, tavily_api_key)
+            if text:
+                scraped_pages.append({"name": name, "url": url, "text": text})
+            else:
+                skipped_competitors.append({
+                    "name": name, "url": url,
+                    "reason": "Timeout / 403 / bot-block / empty content",
+                })
+
+    # ── Guard: AllURLsFailed
+    if not scraped_pages:
+        return {
+            "USP_Score": None,
+            "unique_feature_claim_count": unique_feature_claim_count,
+            "verified_unique_feature_count": None,
+            "disputed_features": [],
+            "skipped_competitors": skipped_competitors,
+            "Confidence_Flag": "LOW",
+            "pitchbook_competitor_data": pitchbook_competitor_data,
+            "compute_status": "AllURLsFailed",
+            "pillar_score": None,
+            "dashboard_status": "AllURLsFailed — no competitor pages could be scraped",
+            "data_provenance_note": DATA_PROVENANCE_NOTE,
+        }
+
+    # ── Gemini comparison per scraped page
+    disputed_by_feature: dict[str, list[str]] = {}  # feature_name → [competitor_names]
+
+    for page in scraped_pages:
+        disputed = _gemini_find_disputed(unique_feature_list, page["text"], gemini_api_key)
+        for feat_name in disputed:
+            disputed_by_feature.setdefault(feat_name, []).append(page["name"])
+
+    # ── Aggregate disputed features (deduplicated by feature_name)
+    disputed_features_out = [
+        {"feature_name": k, "found_on_competitor": v}
+        for k, v in disputed_by_feature.items()
     ]
 
-    competitors = [
-        {"name": "Comp A", "feature_list": ["Fraud detection", "Compliance reporting", "Payment gateway integration"]},
-        {"name": "Comp B", "feature_list": ["Real-time fraud monitoring", "Automated reports"]}
-    ]
+    disputed_feature_count = len(disputed_by_feature)
+    verified_unique_feature_count = unique_feature_claim_count - disputed_feature_count
 
-    result = compute_usp_score(startup_features, competitors)
-    print(result)
+    # ── USP Score
+    usp_score = (verified_unique_feature_count / unique_feature_claim_count) * 100
+    usp_score = round(max(usp_score, 0.0), 2)
+
+    # ── Confidence Flag
+    confidence_flag = _compute_confidence_flag(
+        competitors_submitted=len(competitors),
+        scraped_count=len(scraped_pages),
+        skipped_count=len(skipped_competitors),
+    )
+
+    # ── Pillar score from lookup table
+    pillar_score, dashboard_status = _lookup_pillar_score(usp_score, confidence_flag)
+
+    # ── NULL score when 0% USP with no competitor pages scraped? — handled above
+    compute_status = "OK"
+
+    return {
+        "USP_Score": usp_score,
+        "unique_feature_claim_count": unique_feature_claim_count,
+        "verified_unique_feature_count": verified_unique_feature_count,
+        "disputed_features": disputed_features_out,
+        "skipped_competitors": skipped_competitors,
+        "Confidence_Flag": confidence_flag,
+        "pitchbook_competitor_data": pitchbook_competitor_data,
+        "compute_status": compute_status,
+        "pillar_score": pillar_score,
+        "dashboard_status": dashboard_status,
+        "data_provenance_note": DATA_PROVENANCE_NOTE,
+    }

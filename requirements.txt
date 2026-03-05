@@ -2,6 +2,10 @@ fastapi
 uvicorn
 pydantic
 numpy
-scikit-learn
-sentence-transformers
+scipy
 requests
+google-generativeai
+google-auth
+google-auth-oauthlib
+google-analytics-data
+google-api-python-client

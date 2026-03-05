@@ -1,44 +1,98 @@
 {
-    "company_name": "Appendix Alpha",
-    "company_stage": "Seed",
-    "product_type": "B2B SaaS",
-    "market_type": "B2B SaaS",
-    "geographic_focus": [
-        "North America"
+    "_comment": "FFP Smart MVP — Spec-aligned sample startup input (Pre-Seed, no live revenue)",
+    "company_name": "SecurePay AI",
+    "company_stage": "Pre-Seed",
+    "startup_domain": "securepay.ai",
+    "market_type": "Fintech",
+    "market_description": "B2B fraud-prevention SaaS for financial institutions",
+    "geographic_focus": "North America",
+    "feature_list": [
+        "Real-time transaction fingerprinting using behavioral biometrics",
+        "Automated compliance reporting for AML/KYC",
+        "Multi-bank reconciliation engine with 99.9% accuracy",
+        "Predictive threat intelligence dashboard",
+        "Device trust scoring",
+        "One-click audit trail export"
     ],
-    "custom_build_level": "Yes – largely custom-built",
-    "patent_status": "pending",
-    "startup_features": [
-        "AI-powered fraud detection dashboard",
-        "Automated compliance reporting",
-        "Multi-bank integration"
+    "unique_feature_list": [
+        {
+            "feature_name": "Real-time transaction fingerprinting using behavioral biometrics",
+            "description": "Continuously scores transactions using mouse dynamics, typing cadence, and device telemetry without additional friction.",
+            "not_in_competitors": [
+                "ManualCheck Co.",
+                "OldSchool Fraud Ltd.",
+                "BatchVerify Inc."
+            ],
+            "own_product_url": "https://securepay.ai/features/biometrics"
+        },
+        {
+            "feature_name": "Multi-bank reconciliation engine with 99.9% accuracy",
+            "description": "Reconciles transactions across multiple banking rails simultaneously with sub-second latency.",
+            "not_in_competitors": [
+                "ManualCheck Co.",
+                "OldSchool Fraud Ltd.",
+                "BatchVerify Inc."
+            ],
+            "own_product_url": "https://securepay.ai/features/reconciliation"
+        },
+        {
+            "feature_name": "Predictive threat intelligence dashboard",
+            "description": "Forward-looking threat scoring using federated learning across client networks without sharing raw data.",
+            "not_in_competitors": [
+                "ManualCheck Co.",
+                "BatchVerify Inc."
+            ],
+            "own_product_url": "https://securepay.ai/features/threat-intel"
+        }
     ],
     "competitors": [
         {
-            "name": "Comp A",
-            "feature_list": [
-                "Fraud detection",
-                "Compliance reporting"
-            ]
+            "name": "ManualCheck Co.",
+            "product_url": "https://manualcheck.example.com/product",
+            "domain": "manualcheck.example.com"
         },
         {
-            "name": "Comp B",
-            "feature_list": [
-                "Real-time fraud monitoring",
-                "Automated reports"
-            ]
+            "name": "OldSchool Fraud Ltd.",
+            "product_url": "https://oldschoolfraud.example.com/features",
+            "domain": "oldschoolfraud.example.com"
+        },
+        {
+            "name": "BatchVerify Inc.",
+            "product_url": "https://batchverify.example.com/product",
+            "domain": "batchverify.example.com"
         }
     ],
-    "web_growth_rate": 20.0,
-    "social_growth_rate": 6.0,
-    "waitlist_prev": 600,
-    "waitlist_curr": 800,
-    "beta_prev": 100,
-    "beta_curr": 150,
-    "unique_visitors_curr": 5000,
-    "total_revenue": 50000.0,
-    "active_users": 1000,
-    "prev_revenue": 40000.0,
+    "web_visitors_prev": 1800,
+    "web_visitors_curr": 2340,
+    "social_followers_prev": 950,
+    "social_followers_curr": 1140,
     "pricing_model_type": "Subscription",
-    "paying_segment": "Enterprise clients"
+    "target_customer": "Mid-market and enterprise banks and payment processors",
+    "pricing_metric": "Per seat, per month",
+    "price_range": "$500–$2,000/seat/month depending on tier",
+    "who_pays_vs_who_uses": "Bank pays; fraud ops team uses",
+    "paying_segment": null,
+    "pricing_evidence_links": [
+        "https://securepay.ai/pricing"
+    ],
+    "analyst_notes": "Pricing is pre-revenue; tiers are modelled on Sardine.ai and Featurespace benchmarks.",
+    "total_revenue": 0.0,
+    "custom_build_level": 75,
+    "patent_status": "Pending",
+    "patent_numbers": [
+        "18123456"
+    ],
+    "inventor_names": [
+        {
+            "first": "Maya",
+            "last": "Chen"
+        }
+    ],
+    "assignee_company_name": null,
+    "tech_evidence_links": [
+        "https://github.com/securepay-ai/fingerprint-engine",
+        "https://securepay.ai/whitepaper.pdf"
+    ],
+    "tech_description": "Custom-built real-time stream processing engine using Apache Flink. The biometric scoring model is trained on proprietary behavioral data and runs inference at <10ms p99.",
+    "run_patent_verification": false
 }
