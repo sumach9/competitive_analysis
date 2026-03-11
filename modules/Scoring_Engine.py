@@ -88,8 +88,6 @@ def compute_composite(
     tech_evidence_links: Optional[list[str]] = None,
     tech_description: Optional[str] = None,
     run_patent_verification: bool = True,
-    # ── Shared API key ──
-    gemini_api_key: str = "",
 ) -> dict:
     """
     Orchestrate all four pillar modules and return a fully composed
@@ -115,7 +113,6 @@ def compute_composite(
         unique_feature_list=unique_feature_list,
         competitors=competitors,
         tavily_api_key=tavily_api_key,
-        gemini_api_key=gemini_api_key,
         pitchbook_api_key=pitchbook_api_key,
     )
     pillar_results["USP"] = usp_out
@@ -138,7 +135,6 @@ def compute_composite(
         web_visitors_curr=web_visitors_curr,
         social_followers_prev=social_followers_prev,
         social_followers_curr=social_followers_curr,
-        gemini_api_key=gemini_api_key,
     )
     pillar_results["GTM"] = gtm_out
     gtm_score = gtm_out.get("gtm_pillar_score")
@@ -159,7 +155,6 @@ def compute_composite(
         revenue_curr_period=revenue_curr_period,
         market_type=market_type,
         geographic_focus=geographic_focus,
-        gemini_api_key=gemini_api_key,
     )
     pillar_results["PRICING"] = pricing_out
     pricing_score = pricing_out.get("pricing_pillar_score")
@@ -263,5 +258,4 @@ def run_scoring_pipeline(company_data: dict) -> dict:
         tech_description=company_data.get("tech_description"),
         run_patent_verification=company_data.get("run_patent_verification", True),
         # Shared
-        gemini_api_key=os.getenv("GEMINI_API_KEY", ""),
     )

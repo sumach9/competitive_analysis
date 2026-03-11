@@ -5,15 +5,12 @@ Weight: 15% of composite score (Pre-Seed)
 
 Path A (PitchBook):  webGrowthRate, socialGrowthRate, percentiles → z-scores via invNorm
 Path B (GA4 + GSC):  Month-over-month sessions / followers → z-scores via Static Benchmark Table
-
-Gemini 2.0 Flash is used ONLY for fuzzy market_type label matching in Path B when
-no exact match exists in the benchmark table. It NEVER generates benchmark values.
 """
 
 import math
 import os
-import json
 import requests
+import re
 from typing import Optional
 from scipy.stats import norm
 
@@ -38,53 +35,46 @@ def _z_from_rate(rate: float, mean: float, std: float) -> float:
 
 
 # ──────────────────────────────────────────────
-# Gemini: fuzzy market_type label match (Path B only)
+# Market type: label match (Path B only)
 # ──────────────────────────────────────────────
-def _gemini_match_market_type(market_description: str, gemini_api_key: str) -> str:
+def _match_market_type(market_description: str) -> str:
     """
-    Ask Gemini 2.0 Flash to map a free-text market description to one of the
-    benchmark table labels. Returns the matched label string only.
-    Falls back to 'Other' on any error.
+    Case-insensitive token-based match of the market_description against
+    known benchmark table labels. Returns 'Other' if no match is found.
+    Replaces Gemini-based fuzzy matching.
     """
-    if not gemini_api_key:
+    if not market_description:
         return "Other"
-    label_list = ", ".join(MARKET_TYPE_LABELS)
-    prompt = (
-        f"Given this market description: {market_description}. "
-        f"Which of these market types is the closest match: {label_list}? "
-        "Return the label only. No explanation."
-    )
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.0, "maxOutputTokens": 30},
-    }
-    try:
-        gemini_url = (
-            "https://generativelanguage.googleapis.com/v1beta"
-            f"/models/gemini-2.0-flash:generateContent?key={gemini_api_key}"
-        )
-        resp = requests.post(
-            gemini_url,
-            headers={"Content-Type": "application/json"},
-            json=payload,
-            timeout=15,
-        )
-        resp.raise_for_status()
-        text = (
-            resp.json()
-            .get("candidates", [{}])[0]
-            .get("content", {})
-            .get("parts", [{}])[0]
-            .get("text", "")
-            .strip()
-        )
-        # Validate the returned label exists in the table
-        for label in MARKET_TYPE_LABELS:
-            if label.lower() in text.lower():
-                return label
-        return "Other"
-    except Exception:
-        return "Other"
+        
+    desc_lower = market_description.lower()
+    
+    # We use a scoring system for better matching
+    best_match = "Other"
+    best_score = 0
+    
+    for label in MARKET_TYPE_LABELS:
+        if label == "Other":
+            continue
+            
+        # Match count
+        score = 0
+        # Direct substring
+        if label.lower() in desc_lower:
+            score += 10
+            
+        # Token matches (for multi-word labels like "Developer Tools")
+        label_tokens = set(re.findall(r'\b[a-z]{3,}\b', label.lower()))
+        desc_tokens = set(re.findall(r'\b[a-z]{3,}\b', desc_lower))
+        
+        matches = label_tokens.intersection(desc_tokens)
+        score += len(matches) * 2
+        
+        if score > best_score:
+            best_score = score
+            best_match = label
+            
+    # Threshold for a "good" match
+    return best_match if best_score >= 2 else "Other"
 
 
 # ──────────────────────────────────────────────
@@ -202,8 +192,6 @@ def compute_preseed_gtm(
     # Social (all paths — manual entry)
     social_followers_prev: Optional[int] = None,
     social_followers_curr: Optional[int] = None,
-    # Gemini
-    gemini_api_key: str = "",
 ) -> dict:
     """
     Compute GTM Audience Growth Rate pillar.
@@ -300,8 +288,8 @@ def compute_preseed_gtm(
         # Match market_type to benchmark table
         resolved_type = market_type if market_type in BENCHMARK_TABLE else None
         if resolved_type is None and market_description:
-            resolved_type = _gemini_match_market_type(market_description, gemini_api_key)
-            flags.append(f"MARKET_TYPE_GEMINI_MATCHED:{resolved_type}")
+            resolved_type = _match_market_type(market_description)
+            flags.append(f"MARKET_TYPE_LABEL_MATCHED:{resolved_type}")
         if resolved_type is None:
             resolved_type = "Other"
         matched_market_type = resolved_type

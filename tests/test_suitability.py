@@ -5,7 +5,7 @@ FFP Smart MVP — Automated unit tests for the four suitability pillar modules
 and the composite scoring engine.
 
 All external API calls are mocked with unittest.mock — no real network
-traffic is required (no Tavily / Gemini / USPTO keys needed to run locally).
+traffic is required (no Tavily / USPTO keys needed to run locally).
 
 Run:
     cd c:\\Users\\polak\\research\\competitive
@@ -40,31 +40,6 @@ def _make_tavily_empty():
     return mock
 
 
-def _make_gemini_disputed(*feature_names):
-    """Simulate Gemini returning a list of disputed features."""
-    import json
-    mock = MagicMock()
-    mock.raise_for_status.return_value = None
-    mock.json.return_value = {
-        "candidates": [{
-            "content": {"parts": [{"text": json.dumps({"disputed_features": list(feature_names)})}]}
-        }]
-    }
-    return mock
-
-
-def _make_gemini_no_disputed():
-    """Simulate Gemini returning an empty disputed list."""
-    import json
-    mock = MagicMock()
-    mock.raise_for_status.return_value = None
-    mock.json.return_value = {
-        "candidates": [{
-            "content": {"parts": [{"text": json.dumps({"disputed_features": []})}]}
-        }]
-    }
-    return mock
-
 
 _UNIQUE_FEATURES = [
     {"feature_name": "FeatureA", "description": "Does X"},
@@ -90,41 +65,27 @@ class TestUSP:
         with patch("modules.USP.requests.post") as mock_post:
             # Tavily: 3 successful scrapes
             mock_post.side_effect = [
-                _make_tavily_response("Some competitor page text"),
-                _make_gemini_no_disputed(),
-                _make_tavily_response("Another page"),
-                _make_gemini_no_disputed(),
-                _make_tavily_response("Third page"),
-                _make_gemini_no_disputed(),
+                _make_tavily_response("No matching stuff here"),
+                _make_tavily_response("Clean page"),
+                _make_tavily_response("Another one"),
             ]
             from modules import USP
             result = USP.compute_usp_score(
-                feature_list=["FeatureA", "FeatureB", "FeatureC", "FeatureD", "FeatureE"],  # 5 total
-                unique_feature_list=_UNIQUE_FEATURES,  # 3 unique
+                feature_list=["F1", "F2", "F3", "F4", "F5"], # 5 total
+                unique_feature_list=_UNIQUE_FEATURES, # 3 unique
                 competitors=_COMPETITORS,
-                tavily_api_key="fake", gemini_api_key="fake",
+                tavily_api_key="k",
             )
-        # denominator must be 3 (len(unique_feature_list)), not 5
         assert result["unique_feature_claim_count"] == 3
+        # Should be 100% since no fuzzy match was found
+        assert result["USP_Score"] == 100.0
 
-    def test_usp_insufficient_data_empty_unique(self):
-        """unique_feature_list=[] → InsufficientData, score=NULL."""
+    def test_usp_insufficient_data(self):
+        """Empty unique_feature_list → InsufficientData."""
         from modules import USP
         result = USP.compute_usp_score(
             feature_list=["F1"],
             unique_feature_list=[],
-            competitors=_COMPETITORS,
-        )
-        assert result["compute_status"] == "InsufficientData"
-        assert result["USP_Score"] is None
-        assert result["pillar_score"] is None
-
-    def test_usp_insufficient_data_empty_features(self):
-        """feature_list=[] → InsufficientData, score=NULL."""
-        from modules import USP
-        result = USP.compute_usp_score(
-            feature_list=[],
-            unique_feature_list=_UNIQUE_FEATURES,
             competitors=_COMPETITORS,
         )
         assert result["compute_status"] == "InsufficientData"
@@ -134,61 +95,77 @@ class TestUSP:
         """3+ successfully scraped → Confidence_Flag = HIGH."""
         with patch("modules.USP.requests.post") as mock_post:
             mock_post.side_effect = [
-                _make_tavily_response("page 1"), _make_gemini_no_disputed(),
-                _make_tavily_response("page 2"), _make_gemini_no_disputed(),
-                _make_tavily_response("page 3"), _make_gemini_no_disputed(),
+                _make_tavily_response("p1"),
+                _make_tavily_response("p2"),
+                _make_tavily_response("p3"),
             ]
             from modules import USP
             result = USP.compute_usp_score(
                 feature_list=["F1"], unique_feature_list=_UNIQUE_FEATURES,
-                competitors=_COMPETITORS, tavily_api_key="k", gemini_api_key="k",
+                competitors=_COMPETITORS, tavily_api_key="k"
             )
         assert result["Confidence_Flag"] == "HIGH"
 
-    def test_usp_confidence_low(self):
-        """Fewer than 3 scraped → Confidence_Flag = LOW."""
+    def test_usp_confidence_medium(self):
+        """Exactly 1 skipped → Confidence_Flag = MEDIUM."""
         with patch("modules.USP.requests.post") as mock_post:
-            # All Tavily calls fail
-            mock_post.side_effect = Exception("timeout")
+            mock_post.side_effect = [
+                _make_tavily_response("p1"),
+                _make_tavily_response("p2"),
+                Exception("failed"), Exception("failed"), # Skip Comp3 (2 tries)
+            ]
             from modules import USP
             result = USP.compute_usp_score(
                 feature_list=["F1"], unique_feature_list=_UNIQUE_FEATURES,
-                competitors=_COMPETITORS, tavily_api_key="k", gemini_api_key="k",
+                competitors=_COMPETITORS, tavily_api_key="k"
             )
-        assert result["Confidence_Flag"] == "LOW"
+        assert result["Confidence_Flag"] == "MEDIUM"
 
     def test_usp_score_all_verified(self):
-        """No disputes → USP_Score = 100%, pillar_score = 90."""
+        """No fuzzy matches -> USP_Score = 100%, pillar_score = 90."""
         with patch("modules.USP.requests.post") as mock_post:
             mock_post.side_effect = [
-                _make_tavily_response("p1"), _make_gemini_no_disputed(),
-                _make_tavily_response("p2"), _make_gemini_no_disputed(),
-                _make_tavily_response("p3"), _make_gemini_no_disputed(),
+                _make_tavily_response("nothing here"),
+                _make_tavily_response("clean"),
+                _make_tavily_response("other"),
             ]
             from modules import USP
             result = USP.compute_usp_score(
                 feature_list=["X"], unique_feature_list=_UNIQUE_FEATURES,
-                competitors=_COMPETITORS, tavily_api_key="k", gemini_api_key="k",
+                competitors=_COMPETITORS, tavily_api_key="k"
             )
         assert result["USP_Score"] == 100.0
         assert result["pillar_score"] == 90
 
-    def test_usp_score_all_disputed(self):
-        """All 3 features disputed → USP_Score = 0%, pillar_score = 20."""
+    def test_usp_fuzzy_dispute_found(self):
+        """Feature name overlap -> disputed feature."""
         with patch("modules.USP.requests.post") as mock_post:
-            disputed_all = _make_gemini_disputed("FeatureA", "FeatureB", "FeatureC")
+            # Page text contains the feature name tokens "FeatureA"
             mock_post.side_effect = [
-                _make_tavily_response("p1"), _make_gemini_disputed("FeatureA", "FeatureB", "FeatureC"),
-                _make_tavily_response("p2"), _make_gemini_disputed("FeatureA", "FeatureB", "FeatureC"),
-                _make_tavily_response("p3"), _make_gemini_disputed("FeatureA", "FeatureB", "FeatureC"),
+                _make_tavily_response("We have FeatureA which does X"),
+                _make_tavily_response("nothing"),
+                _make_tavily_response("nothing"),
             ]
             from modules import USP
             result = USP.compute_usp_score(
-                feature_list=["X"], unique_feature_list=_UNIQUE_FEATURES,
-                competitors=_COMPETITORS, tavily_api_key="k", gemini_api_key="k",
+                feature_list=["X"], unique_feature_list=[{"feature_name": "FeatureA", "description": "Does X"}],
+                competitors=_COMPETITORS, tavily_api_key="k"
             )
         assert result["USP_Score"] == 0.0
-        assert result["pillar_score"] == 20
+        assert len(result["disputed_features"]) == 1
+        assert result["disputed_features"][0]["feature_name"] == "FeatureA"
+
+    def test_usp_scoring_thresholds(self):
+        """Verify thresholds: 80-100% -> 90, 60-79% -> 78, 30-59% -> 55, 0-29% -> 20."""
+        from modules import USP
+        assert USP._lookup_pillar_score(100)[0] == 90
+        assert USP._lookup_pillar_score(80)[0] == 90
+        assert USP._lookup_pillar_score(70)[0] == 78
+        assert USP._lookup_pillar_score(60)[0] == 78
+        assert USP._lookup_pillar_score(50)[0] == 55
+        assert USP._lookup_pillar_score(30)[0] == 55
+        assert USP._lookup_pillar_score(20)[0] == 20
+        assert USP._lookup_pillar_score(0)[0] == 20
 
 
 # ─────────────────────────────────────────────────────────────────────────────

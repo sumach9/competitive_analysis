@@ -1,98 +1,102 @@
 {
-    "_comment": "FFP Smart MVP — Spec-aligned sample startup input (Pre-Seed, no live revenue)",
-    "company_name": "SecurePay AI",
+    "company_name": "NovaTech AI",
     "company_stage": "Pre-Seed",
-    "startup_domain": "securepay.ai",
-    "market_type": "Fintech",
-    "market_description": "B2B fraud-prevention SaaS for financial institutions",
+    "startup_domain": "novatech-ai.io",
+    "market_type": "B2B SaaS",
+    "market_description": "AI-powered contract intelligence platform for mid-market legal and procurement teams, automating contract review, risk flagging, and clause extraction.",
     "geographic_focus": "North America",
     "feature_list": [
-        "Real-time transaction fingerprinting using behavioral biometrics",
-        "Automated compliance reporting for AML/KYC",
-        "Multi-bank reconciliation engine with 99.9% accuracy",
-        "Predictive threat intelligence dashboard",
-        "Device trust scoring",
-        "One-click audit trail export"
+        "Automated contract review with clause-level extraction",
+        "AI risk scoring per contract with plain-language summaries",
+        "Multi-party redlining workflow with tracked changes",
+        "Real-time obligation calendar and renewal alerts",
+        "Playbook enforcement engine to flag deviations from standard terms",
+        "Bulk contract ingestion from email and SharePoint"
     ],
     "unique_feature_list": [
         {
-            "feature_name": "Real-time transaction fingerprinting using behavioral biometrics",
-            "description": "Continuously scores transactions using mouse dynamics, typing cadence, and device telemetry without additional friction.",
+            "feature_name": "Obligation intelligence graph",
+            "description": "Automatically maps cross-contract dependencies — e.g., if Contract A's SLA depends on Vendor B's delivery schedule in Contract C — surfacing cascading risk no other tool tracks.",
             "not_in_competitors": [
-                "ManualCheck Co.",
-                "OldSchool Fraud Ltd.",
-                "BatchVerify Inc."
+                "ContractPodAi",
+                "Ironclad",
+                "Kira"
             ],
-            "own_product_url": "https://securepay.ai/features/biometrics"
+            "own_product_url": "https://novatech-ai.io/features/obligation-graph"
         },
         {
-            "feature_name": "Multi-bank reconciliation engine with 99.9% accuracy",
-            "description": "Reconciles transactions across multiple banking rails simultaneously with sub-second latency.",
+            "feature_name": "Negotiation tone analyser",
+            "description": "Scores counterparty assertiveness and predicts likely acceptance probability for each proposed redline, trained on 4M closed deal outcomes.",
             "not_in_competitors": [
-                "ManualCheck Co.",
-                "OldSchool Fraud Ltd.",
-                "BatchVerify Inc."
+                "ContractPodAi",
+                "Ironclad",
+                "Kira"
             ],
-            "own_product_url": "https://securepay.ai/features/reconciliation"
+            "own_product_url": "https://novatech-ai.io/features/negotiation-ai"
         },
         {
-            "feature_name": "Predictive threat intelligence dashboard",
-            "description": "Forward-looking threat scoring using federated learning across client networks without sharing raw data.",
+            "feature_name": "Clause ancestry tracker",
+            "description": "Shows the provenance of every clause — which template it originated from, who accepted it, and how many times it has been used across the portfolio.",
             "not_in_competitors": [
-                "ManualCheck Co.",
-                "BatchVerify Inc."
+                "Ironclad",
+                "Kira"
             ],
-            "own_product_url": "https://securepay.ai/features/threat-intel"
+            "own_product_url": "https://novatech-ai.io/features/clause-ancestry"
         }
     ],
     "competitors": [
         {
-            "name": "ManualCheck Co.",
-            "product_url": "https://manualcheck.example.com/product",
-            "domain": "manualcheck.example.com"
+            "name": "Ironclad",
+            "product_url": "https://ironcladapp.com/product/",
+            "domain": "ironcladapp.com"
         },
         {
-            "name": "OldSchool Fraud Ltd.",
-            "product_url": "https://oldschoolfraud.example.com/features",
-            "domain": "oldschoolfraud.example.com"
+            "name": "ContractPodAi",
+            "product_url": "https://contractpodai.com/platform/",
+            "domain": "contractpodai.com"
         },
         {
-            "name": "BatchVerify Inc.",
-            "product_url": "https://batchverify.example.com/product",
-            "domain": "batchverify.example.com"
+            "name": "Kira Systems",
+            "product_url": "https://kirasystems.com/platform/",
+            "domain": "kirasystems.com"
         }
     ],
-    "web_visitors_prev": 1800,
-    "web_visitors_curr": 2340,
-    "social_followers_prev": 950,
-    "social_followers_curr": 1140,
+    "web_visitors_prev": 3100,
+    "web_visitors_curr": 4250,
+    "social_followers_prev": 820,
+    "social_followers_curr": 1190,
     "pricing_model_type": "Subscription",
-    "target_customer": "Mid-market and enterprise banks and payment processors",
+    "target_customer": "Mid-market legal ops and procurement teams at companies with 200–2000 employees",
     "pricing_metric": "Per seat, per month",
-    "price_range": "$500–$2,000/seat/month depending on tier",
-    "who_pays_vs_who_uses": "Bank pays; fraud ops team uses",
-    "paying_segment": null,
+    "price_range": "$120–$350/seat/month depending on tier (Starter / Professional / Enterprise)",
+    "who_pays_vs_who_uses": "Legal ops or procurement budget owner pays; in-house lawyers and contract managers use it daily",
+    "paying_segment": "Legal Operations Manager or VP of Procurement",
     "pricing_evidence_links": [
-        "https://securepay.ai/pricing"
+        "https://novatech-ai.io/pricing",
+        "https://ironcladapp.com/pricing"
     ],
-    "analyst_notes": "Pricing is pre-revenue; tiers are modelled on Sardine.ai and Featurespace benchmarks.",
+    "analyst_notes": "Pre-revenue; 3 LOIs signed at $2,400 ARR/seat target. Pricing benchmarked against Ironclad (est. $150–$400/seat) and ContractPodAi (est. $200–$500/seat). Discounts planned for deal sizes >50 seats.",
     "total_revenue": 0.0,
     "custom_build_level": 75,
     "patent_status": "Pending",
     "patent_numbers": [
-        "18123456"
+        "US63/887,412"
     ],
     "inventor_names": [
         {
-            "first": "Maya",
-            "last": "Chen"
+            "first": "Priya",
+            "last": "Nair"
+        },
+        {
+            "first": "Marco",
+            "last": "Delgado"
         }
     ],
-    "assignee_company_name": null,
+    "assignee_company_name": "NovaTech AI Inc.",
     "tech_evidence_links": [
-        "https://github.com/securepay-ai/fingerprint-engine",
-        "https://securepay.ai/whitepaper.pdf"
+        "https://github.com/novatech-ai/obligation-graph-core",
+        "https://novatech-ai.io/whitepaper-obligation-intelligence.pdf"
     ],
-    "tech_description": "Custom-built real-time stream processing engine using Apache Flink. The biometric scoring model is trained on proprietary behavioral data and runs inference at <10ms p99.",
+    "tech_description": "Core NLP pipeline built on fine-tuned LegalBERT with a proprietary graph database layer (Neo4j-based) for cross-contract dependency mapping. Inference latency <200ms p95 on a 50-page contract. Obligation graph algorithm is novel — no public equivalent found in LegalTech literature.",
     "run_patent_verification": false
 }

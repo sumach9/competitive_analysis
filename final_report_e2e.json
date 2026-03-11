@@ -1,84 +1,77 @@
 {
-  "composite_score": 72.15,
+  "composite_score": 66.15,
   "suitability_label": "Moderate Signal",
   "suitability_colour": "Amber",
   "pillars_computed": [
+    "USP",
     "GTM",
     "PRICING",
     "TECH"
   ],
-  "pillars_unable_to_compute": [
-    "USP"
-  ],
-  "weight_redistribution_applied": true,
+  "pillars_unable_to_compute": [],
+  "weight_redistribution_applied": false,
   "effective_weights": {
-    "GTM": 0.2308,
-    "PRICING": 0.3077,
-    "TECH": 0.4615
+    "USP": 0.35,
+    "GTM": 0.15,
+    "PRICING": 0.2,
+    "TECH": 0.3
   },
   "pillar_results": {
     "USP": {
-      "USP_Score": null,
+      "USP_Score": 33.33,
       "unique_feature_claim_count": 3,
-      "verified_unique_feature_count": null,
-      "disputed_features": [],
-      "skipped_competitors": [
+      "verified_unique_feature_count": 1,
+      "disputed_features": [
         {
-          "name": "ManualCheck Co.",
-          "url": "https://manualcheck.example.com/product",
-          "reason": "Timeout / 403 / bot-block / empty content"
+          "feature_name": "Obligation intelligence graph",
+          "found_on_competitor": "Ironclad"
         },
         {
-          "name": "OldSchool Fraud Ltd.",
-          "url": "https://oldschoolfraud.example.com/features",
-          "reason": "Timeout / 403 / bot-block / empty content"
-        },
-        {
-          "name": "BatchVerify Inc.",
-          "url": "https://batchverify.example.com/product",
-          "reason": "Timeout / 403 / bot-block / empty content"
+          "feature_name": "Clause ancestry tracker",
+          "found_on_competitor": "Ironclad"
         }
       ],
-      "Confidence_Flag": "LOW",
+      "skipped_competitors": [],
+      "Confidence_Flag": "HIGH",
       "pitchbook_competitor_data": [
         {
-          "name": "ManualCheck Co.",
+          "name": "Ironclad",
           "sector": null,
           "stage": null,
           "description": null
         },
         {
-          "name": "OldSchool Fraud Ltd.",
+          "name": "ContractPodAi",
           "sector": null,
           "stage": null,
           "description": null
         },
         {
-          "name": "BatchVerify Inc.",
+          "name": "Kira Systems",
           "sector": null,
           "stage": null,
           "description": null
         }
       ],
-      "compute_status": "AllURLsFailed",
-      "pillar_score": null,
-      "dashboard_status": "AllURLsFailed \u2014 no competitor pages could be scraped",
-      "data_provenance_note": "Claims auto-verified against competitor pages. Competitor metadata from PitchBook."
+      "compute_status": "OK",
+      "pillar_score": 55,
+      "dashboard_status": "Moderate differentiation",
+      "data_provenance_note": "Based on founder-submitted claims, auto-verified against competitor pages."
     },
     "GTM": {
-      "AGR_raw": 25.0,
-      "AudienceGrowthZ": 12.16,
-      "web_growth_rate": 30.0,
-      "social_growth_rate": 20.0,
-      "z_web": 12.0,
-      "z_soc": 12.4,
-      "w_web": 0.6,
-      "w_soc": 0.4,
+      "AGR_raw": 41.11,
+      "AudienceGrowthZ": 26.8501,
+      "web_growth_rate": 37.1,
+      "social_growth_rate": 45.12,
+      "z_web": 18.6267,
+      "z_soc": 42.122,
+      "w_web": 0.65,
+      "w_soc": 0.35,
       "gtm_signal_bucket": "Strong",
       "gtm_pillar_score": 90,
       "compute_path": "GA4/Manual",
       "benchmark_source": "Founder-submitted manual entry",
-      "matched_market_type": "Fintech",
+      "matched_market_type": "B2B SaaS",
       "confidence_level": "LOW",
       "status_label": "NeedsHumanReview",
       "flags": [
@@ -90,18 +83,19 @@
     "PRICING": {
       "pricing_clarity_label": "PreRevenue",
       "pricing_pillar_score": 50,
-      "gemini_pricing_summary": "",
       "pricing_model_type": "Subscription",
-      "target_customer": "Mid-market and enterprise banks and payment processors",
+      "target_customer": "Mid-market legal ops and procurement teams at companies with 200\u20132000 employees",
       "pricing_metric": "Per seat, per month",
-      "price_range": "$500\u2013$2,000/seat/month depending on tier",
-      "who_pays_vs_who_uses": "Bank pays; fraud ops team uses",
-      "paying_segment": null,
+      "price_range": "$120\u2013$350/seat/month depending on tier (Starter / Professional / Enterprise)",
+      "who_pays_vs_who_uses": "Legal ops or procurement budget owner pays; in-house lawyers and contract managers use it daily",
+      "paying_segment": "Legal Operations Manager or VP of Procurement",
+      "ai_pricing_summary": "The startup employs a Subscription pricing model targeting Mid-market legal ops and procurement teams at companies with 200\u20132000 employees based on Per seat, per month in the $120\u2013$350/seat/month depending on tier (Starter / Professional / Enterprise) range. This approach is typical for the B2B SaaS sector in 2026, focusing on scalability through value-based unit economics.",
       "evidence_links": [
-        "https://securepay.ai/pricing"
+        "https://novatech-ai.io/pricing",
+        "https://ironcladapp.com/pricing"
       ],
-      "analyst_notes": "Pricing is pre-revenue; tiers are modelled on Sardine.ai and Featurespace benchmarks.",
-      "data_provenance_note": "Pricing model: founder-submitted. AI summary generated by Gemini 2.0 Flash with Google Search grounding (2026 benchmarks)."
+      "analyst_notes": "Pre-revenue; 3 LOIs signed at $2,400 ARR/seat target. Pricing benchmarked against Ironclad (est. $150\u2013$400/seat) and ContractPodAi (est. $200\u2013$500/seat). Discounts planned for deal sizes >50 seats.",
+      "data_provenance_note": "Pricing model: founder-submitted."
     },
     "TECH": {
       "custom_build_level": 75,
@@ -115,12 +109,12 @@
       "patent_bonus": 0,
       "tech_pillar_score": 78,
       "evidence_links": [
-        "https://github.com/securepay-ai/fingerprint-engine",
-        "https://securepay.ai/whitepaper.pdf"
+        "https://github.com/novatech-ai/obligation-graph-core",
+        "https://novatech-ai.io/whitepaper-obligation-intelligence.pdf"
       ],
-      "tech_description": "Custom-built real-time stream processing engine using Apache Flink. The biometric scoring model is trained on proprietary behavioral data and runs inference at <10ms p99.",
+      "tech_description": "Core NLP pipeline built on fine-tuned LegalBERT with a proprietary graph database layer (Neo4j-based) for cross-contract dependency mapping. Inference latency <200ms p95 on a 50-page contract. Obligation graph algorithm is novel \u2014 no public equivalent found in LegalTech literature.",
       "data_provenance_note": "Build depth: founder-submitted, evidence required at level \u226550. Patent status: Founder-declared Pending, unverified."
     }
   },
-  "computed_at": "2026-03-05T01:19:19.243860Z"
+  "computed_at": "2026-03-11T20:06:41.059993Z"
 }

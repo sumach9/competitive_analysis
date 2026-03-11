@@ -2,8 +2,7 @@
 FFP Smart MVP — Shared Configuration
 =====================================
 Hardcoded Static Benchmark Table for GTM Path B z-score computation.
-Gemini only fuzzy-matches market_type labels to table rows — it NEVER
-generates these benchmark values. Reviewed annually.
+Reviewed annually.
 
 Source basis:
   - SaaS Capital 2025 benchmarks (median SaaS ~25% annual ≈ 2%/month)
@@ -37,9 +36,7 @@ BENCHMARK_TABLE: dict[str, dict] = {
         "web_low": 4.0, "web_high": 20.0,
         "social_low": 3.0, "social_high": 15.0,
         "w_web": 0.40, "w_soc": 0.60,
-    },cd C:\Users\polak\research
-git clone https://github.com/sumach9/competitive_analysis.git temp_copy
-cd temp_copy
+    },
     "Marketplace": {
         "web_low": 3.0, "web_high": 12.0,
         "social_low": 2.0, "social_high": 8.0,
@@ -82,7 +79,7 @@ cd temp_copy
     },
 }
 
-# Canonical list of market type labels (used in Gemini fuzzy-match prompt)
+# Canonical list of market type labels (used for label matching in GTM)
 MARKET_TYPE_LABELS: list[str] = list(BENCHMARK_TABLE.keys())
 
 # ──────────────────────────────────────────────
