@@ -25,7 +25,7 @@ import datetime
 from typing import Optional
 
 from config.benchmark_table import PILLAR_WEIGHTS, get_suitability_label
-from modules import USP, GTM_PRESEED, Pricing, Tech
+from modules import USP, GTM_Preseed, Pricing, Tech, LLM_Summary
 
 
 # ──────────────────────────────────────────────
@@ -58,8 +58,6 @@ def compute_composite(
     startup_domain: str = "",
     market_type: str = "",
     market_description: str = "",
-    pitchbook_api_key: str = "",
-    pitchbook_data: Optional[dict] = None,
     ga4_property_id: str = "",
     ga4_oauth_token: str = "",
     ga4_data: Optional[dict] = None,
@@ -67,6 +65,7 @@ def compute_composite(
     web_visitors_curr: Optional[int] = None,
     social_followers_prev: Optional[int] = None,
     social_followers_curr: Optional[int] = None,
+    has_social_screenshot: bool = False,
     # ── Pricing inputs ──
     pricing_model_type: Optional[str] = None,
     target_customer: Optional[str] = None,
@@ -77,6 +76,10 @@ def compute_composite(
     pricing_evidence_links: Optional[list[str]] = None,
     analyst_notes: Optional[str] = None,
     revenue_curr_period: float = 0.0,
+    active_users: int = 0,
+    revenue_prev_period: float = 0.0,
+    active_users_prev: int = 0,
+    tavily_benchmark_successful: bool = False,
     geographic_focus: str = "",
     # ── Tech inputs ──
     custom_build_level: int = 0,
@@ -86,6 +89,7 @@ def compute_composite(
     assignee_company_name: Optional[str] = None,
     company_name: str = "",
     tech_evidence_links: Optional[list[str]] = None,
+    tech_evidence_links_reachable: bool = False,
     tech_description: Optional[str] = None,
     run_patent_verification: bool = True,
 ) -> dict:
@@ -113,7 +117,6 @@ def compute_composite(
         unique_feature_list=unique_feature_list,
         competitors=competitors,
         tavily_api_key=tavily_api_key,
-        pitchbook_api_key=pitchbook_api_key,
     )
     pillar_results["USP"] = usp_out
     usp_score = usp_out.get("pillar_score")
@@ -122,12 +125,10 @@ def compute_composite(
     pillar_scores["USP"] = usp_score
 
     # ── Pillar 2: GTM ────────────────────────────────────────────
-    gtm_out = GTM_PRESEED.compute_preseed_gtm(
+    gtm_out = GTM_Preseed.compute_preseed_gtm(
         startup_domain=startup_domain,
         market_type=market_type,
         market_description=market_description,
-        pitchbook_api_key=pitchbook_api_key,
-        pitchbook_data=pitchbook_data,
         ga4_property_id=ga4_property_id,
         ga4_oauth_token=ga4_oauth_token,
         ga4_data=ga4_data,
@@ -135,6 +136,7 @@ def compute_composite(
         web_visitors_curr=web_visitors_curr,
         social_followers_prev=social_followers_prev,
         social_followers_curr=social_followers_curr,
+        has_social_screenshot=has_social_screenshot,
     )
     pillar_results["GTM"] = gtm_out
     gtm_score = gtm_out.get("gtm_pillar_score")
@@ -149,10 +151,13 @@ def compute_composite(
         pricing_metric=pricing_metric,
         price_range=price_range,
         who_pays_vs_who_uses=who_pays_vs_who_uses,
-        paying_segment=paying_segment,
         evidence_links=pricing_evidence_links,
         analyst_notes=analyst_notes,
         revenue_curr_period=revenue_curr_period,
+        active_users=active_users,
+        revenue_prev_period=revenue_prev_period,
+        active_users_prev=active_users_prev,
+        tavily_benchmark_successful=tavily_benchmark_successful,
         market_type=market_type,
         geographic_focus=geographic_focus,
     )
@@ -171,6 +176,7 @@ def compute_composite(
         assignee_company_name=assignee_company_name,
         company_name=company_name,
         evidence_links=tech_evidence_links,
+        evidence_links_reachable=tech_evidence_links_reachable,
         tech_description=tech_description,
         run_patent_verification=run_patent_verification,
     )
@@ -198,6 +204,13 @@ def compute_composite(
     # ── Suitability label ─────────────────────────────────────────
     suitability_label, suitability_colour = get_suitability_label(composite_score)
 
+    # ── AI Executive Summary (Local Open Source LLM) ──────────────
+    ai_summary = LLM_Summary.generate_local_llm_summary(
+        composite_score=composite_score,
+        suitability_label=suitability_label,
+        pillar_results=pillar_results
+    )
+
     return {
         "composite_score": composite_score,
         "suitability_label": suitability_label,
@@ -207,6 +220,7 @@ def compute_composite(
         "weight_redistribution_applied": weight_redistribution_applied,
         "effective_weights": {k: round(v, 4) for k, v in effective_weights.items()},
         "pillar_results": pillar_results,
+        "ai_executive_summary": ai_summary,
         "computed_at": datetime.datetime.utcnow().isoformat() + "Z",
     }
 
@@ -231,11 +245,11 @@ def run_scoring_pipeline(company_data: dict) -> dict:
         startup_domain=company_data.get("startup_domain", ""),
         market_type=company_data.get("market_type", ""),
         market_description=company_data.get("market_description", ""),
-        pitchbook_api_key=os.getenv("PITCHBOOK_API_KEY", ""),
         web_visitors_prev=company_data.get("web_visitors_prev"),
         web_visitors_curr=company_data.get("web_visitors_curr"),
         social_followers_prev=company_data.get("social_followers_prev"),
         social_followers_curr=company_data.get("social_followers_curr"),
+        has_social_screenshot=company_data.get("has_social_screenshot", False),
         # Pricing
         pricing_model_type=company_data.get("pricing_model_type"),
         target_customer=company_data.get("target_customer"),
@@ -246,6 +260,8 @@ def run_scoring_pipeline(company_data: dict) -> dict:
         pricing_evidence_links=company_data.get("pricing_evidence_links"),
         analyst_notes=company_data.get("analyst_notes"),
         revenue_curr_period=company_data.get("total_revenue", 0.0),
+        active_users=company_data.get("active_users", 0),
+        tavily_benchmark_successful=company_data.get("tavily_benchmark_successful", False),
         geographic_focus=company_data.get("geographic_focus", ""),
         # Tech
         custom_build_level=company_data.get("custom_build_level", 0),
@@ -255,6 +271,7 @@ def run_scoring_pipeline(company_data: dict) -> dict:
         assignee_company_name=company_data.get("assignee_company_name"),
         company_name=company_data.get("company_name", ""),
         tech_evidence_links=company_data.get("tech_evidence_links"),
+        tech_evidence_links_reachable=company_data.get("tech_evidence_links_reachable", False),
         tech_description=company_data.get("tech_description"),
         run_patent_verification=company_data.get("run_patent_verification", True),
         # Shared

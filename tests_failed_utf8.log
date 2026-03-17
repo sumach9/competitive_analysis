@@ -1,0 +1,345 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\polak\research\competitive
+plugins: anyio-4.12.1
+collected 57 items / 50 deselected / 7 selected
+run-last-failure: rerun previous 7 failures
+
+tests\test_full_suitability.py F                                         [ 14%]
+tests\test_suitability.py FFFFF                                          [ 85%]
+tests\test_usp_refinement.py F                                           [100%]
+
+================================== FAILURES ===================================
+_______________ TestFullSuitability.test_weight_redistribution ________________
+
+self = <tests.test_full_suitability.TestFullSuitability testMethod=test_weight_redistribution>
+
+    def test_weight_redistribution(self):
+        """Test that weight is redistributed when a pillar is unable to compute."""
+        # Provide only Tech data
+        res = compute_composite(
+            custom_build_level=100,
+            tech_evidence_links=["http://evidence"]
+        )
+    
+        # Pillars computed should only be TECH
+>       self.assertEqual(res["pillars_computed"], ["TECH"])
+E       AssertionError: Lists differ: ['USP', 'TECH'] != ['TECH']
+E       
+E       First differing element 0:
+E       'USP'
+E       'TECH'
+E       
+E       First list contains 1 additional elements.
+E       First extra element 1:
+E       'TECH'
+E       
+E       - ['USP', 'TECH']
+E       + ['TECH']
+
+tests\test_full_suitability.py:60: AssertionError
+_____________________ TestUSP.test_usp_score_denominator ______________________
+
+self = <tests.test_suitability.TestUSP object at 0x000002747EFC14C0>
+
+    def test_usp_score_denominator(self):
+        """USP_Score denominator = unique_feature_claim_count (not total_feature_count)."""
+        with patch("modules.USP.requests.post") as mock_post:
+            # Tavily: 3 successful scrapes
+            mock_post.side_effect = [
+                _make_tavily_response("No matching stuff here"),
+                _make_tavily_response("Clean page"),
+                _make_tavily_response("Another one"),
+            ]
+            from modules import USP
+>           result = USP.compute_usp_score(
+                feature_list=["F1", "F2", "F3", "F4", "F5"], # 5 total
+                unique_feature_list=_UNIQUE_FEATURES, # 3 unique
+                competitors=_COMPETITORS,
+                tavily_api_key="k",
+            )
+
+tests\test_suitability.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+modules\USP.py:246: in compute_usp_score
+    found_on_comps = _tfidf_match_verify(feat_name, feat_desc, scraped_pages)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+feature_name = 'FeatureA', feature_description = 'Does X'
+competitor_pages = {'Comp1': {'name': 'Comp1', 'text': 'No matching stuff here', 'url': 'https://comp1.example.com'}, 'Comp2': {'name': '...': 'https://comp2.example.com'}, 'Comp3': {'name': 'Comp3', 'text': 'Another one', 'url': 'https://comp3.example.com'}}
+
+    def _tfidf_match_verify(
+        feature_name: str,
+        feature_description: str,
+        competitor_pages: List[Dict[str, str]],
+    ) -> List[str]:
+        """
+        Check if a feature claim is present on competitor pages using TF-IDF and
+        cosine similarity matching. A similarity score > 0.65 means the feature
+        is DISPUTED (found on a competitor's site), per the spec.
+        """
+        found_on = []
+    
+        # Combine claim name and description to form the target query
+        query_text = f"{feature_name} {feature_description}".lower().strip()
+    
+        if not query_text:
+            return found_on
+    
+        vectorizer = TfidfVectorizer(stop_words="english")
+    
+        for page in competitor_pages:
+>           raw_text = page.get('text')
+                       ^^^^^^^^
+E           AttributeError: 'str' object has no attribute 'get'
+
+modules\USP.py:116: AttributeError
+______________________ TestUSP.test_usp_confidence_high _______________________
+
+self = <tests.test_suitability.TestUSP object at 0x0000027481E3ED50>
+
+    def test_usp_confidence_high(self):
+        """3+ successfully scraped \u2192 Confidence_Flag = HIGH."""
+        with patch("modules.USP.requests.post") as mock_post:
+            mock_post.side_effect = [
+                _make_tavily_response("p1"),
+                _make_tavily_response("p2"),
+                _make_tavily_response("p3"),
+            ]
+            from modules import USP
+>           result = USP.compute_usp_score(
+                feature_list=["F1"], unique_feature_list=_UNIQUE_FEATURES,
+                competitors=_COMPETITORS, tavily_api_key="k"
+            )
+
+tests\test_suitability.py:104: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+modules\USP.py:246: in compute_usp_score
+    found_on_comps = _tfidf_match_verify(feat_name, feat_desc, scraped_pages)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+feature_name = 'FeatureA', feature_description = 'Does X'
+competitor_pages = {'Comp1': {'name': 'Comp1', 'text': 'p1', 'url': 'https://comp1.example.com'}, 'Comp2': {'name': 'Comp2', 'text': 'p2', 'url': 'https://comp2.example.com'}, 'Comp3': {'name': 'Comp3', 'text': 'p3', 'url': 'https://comp3.example.com'}}
+
+    def _tfidf_match_verify(
+        feature_name: str,
+        feature_description: str,
+        competitor_pages: List[Dict[str, str]],
+    ) -> List[str]:
+        """
+        Check if a feature claim is present on competitor pages using TF-IDF and
+        cosine similarity matching. A similarity score > 0.65 means the feature
+        is DISPUTED (found on a competitor's site), per the spec.
+        """
+        found_on = []
+    
+        # Combine claim name and description to form the target query
+        query_text = f"{feature_name} {feature_description}".lower().strip()
+    
+        if not query_text:
+            return found_on
+    
+        vectorizer = TfidfVectorizer(stop_words="english")
+    
+        for page in competitor_pages:
+>           raw_text = page.get('text')
+                       ^^^^^^^^
+E           AttributeError: 'str' object has no attribute 'get'
+
+modules\USP.py:116: AttributeError
+_____________________ TestUSP.test_usp_confidence_medium ______________________
+
+self = <tests.test_suitability.TestUSP object at 0x0000027481E3EFC0>
+
+    def test_usp_confidence_medium(self):
+        """Exactly 1 skipped \u2192 Confidence_Flag = MEDIUM."""
+        with patch("modules.USP.requests.post") as mock_post:
+            mock_post.side_effect = [
+                _make_tavily_response("p1"),
+                _make_tavily_response("p2"),
+                Exception("failed"), Exception("failed"), # Skip Comp3 (2 tries)
+            ]
+            from modules import USP
+>           result = USP.compute_usp_score(
+                feature_list=["F1"], unique_feature_list=_UNIQUE_FEATURES,
+                competitors=_COMPETITORS, tavily_api_key="k"
+            )
+
+tests\test_suitability.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+modules\USP.py:246: in compute_usp_score
+    found_on_comps = _tfidf_match_verify(feat_name, feat_desc, scraped_pages)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+feature_name = 'FeatureA', feature_description = 'Does X'
+competitor_pages = {'Comp1': {'name': 'Comp1', 'text': 'p1', 'url': 'https://comp1.example.com'}, 'Comp2': {'name': 'Comp2', 'text': 'p2', 'url': 'https://comp2.example.com'}}
+
+    def _tfidf_match_verify(
+        feature_name: str,
+        feature_description: str,
+        competitor_pages: List[Dict[str, str]],
+    ) -> List[str]:
+        """
+        Check if a feature claim is present on competitor pages using TF-IDF and
+        cosine similarity matching. A similarity score > 0.65 means the feature
+        is DISPUTED (found on a competitor's site), per the spec.
+        """
+        found_on = []
+    
+        # Combine claim name and description to form the target query
+        query_text = f"{feature_name} {feature_description}".lower().strip()
+    
+        if not query_text:
+            return found_on
+    
+        vectorizer = TfidfVectorizer(stop_words="english")
+    
+        for page in competitor_pages:
+>           raw_text = page.get('text')
+                       ^^^^^^^^
+E           AttributeError: 'str' object has no attribute 'get'
+
+modules\USP.py:116: AttributeError
+_____________________ TestUSP.test_usp_score_all_verified _____________________
+
+self = <tests.test_suitability.TestUSP object at 0x000002746968E1B0>
+
+    def test_usp_score_all_verified(self):
+        """No TF-IDF matches -> USP_Score = 100%, pillar_score = 90."""
+        with patch("modules.USP.requests.post") as mock_post:
+            mock_post.side_effect = [
+                _make_tavily_response("nothing here"),
+                _make_tavily_response("clean"),
+                _make_tavily_response("other"),
+            ]
+            from modules import USP
+>           result = USP.compute_usp_score(
+                feature_list=["X"], unique_feature_list=_UNIQUE_FEATURES,
+                competitors=_COMPETITORS, tavily_api_key="k"
+            )
+
+tests\test_suitability.py:134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+modules\USP.py:246: in compute_usp_score
+    found_on_comps = _tfidf_match_verify(feat_name, feat_desc, scraped_pages)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+feature_name = 'FeatureA', feature_description = 'Does X'
+competitor_pages = {'Comp1': {'name': 'Comp1', 'text': 'nothing here', 'url': 'https://comp1.example.com'}, 'Comp2': {'name': 'Comp2', 't..., 'url': 'https://comp2.example.com'}, 'Comp3': {'name': 'Comp3', 'text': 'other', 'url': 'https://comp3.example.com'}}
+
+    def _tfidf_match_verify(
+        feature_name: str,
+        feature_description: str,
+        competitor_pages: List[Dict[str, str]],
+    ) -> List[str]:
+        """
+        Check if a feature claim is present on competitor pages using TF-IDF and
+        cosine similarity matching. A similarity score > 0.65 means the feature
+        is DISPUTED (found on a competitor's site), per the spec.
+        """
+        found_on = []
+    
+        # Combine claim name and description to form the target query
+        query_text = f"{feature_name} {feature_description}".lower().strip()
+    
+        if not query_text:
+            return found_on
+    
+        vectorizer = TfidfVectorizer(stop_words="english")
+    
+        for page in competitor_pages:
+>           raw_text = page.get('text')
+                       ^^^^^^^^
+E           AttributeError: 'str' object has no attribute 'get'
+
+modules\USP.py:116: AttributeError
+____________________ TestUSP.test_usp_tfidf_dispute_found _____________________
+
+self = <tests.test_suitability.TestUSP object at 0x0000027481E3EC60>
+
+    def test_usp_tfidf_dispute_found(self):
+        """Feature name overlap -> disputed feature."""
+        with patch("modules.USP.requests.post") as mock_post:
+            # Page text contains the feature name tokens "FeatureA"
+            mock_post.side_effect = [
+                _make_tavily_response("We have FeatureA which does X"),
+                _make_tavily_response("nothing"),
+                _make_tavily_response("nothing"),
+            ]
+            from modules import USP
+>           result = USP.compute_usp_score(
+                feature_list=["X"], unique_feature_list=[{"feature_name": "FeatureA", "description": "Does X"}],
+                competitors=_COMPETITORS, tavily_api_key="k"
+            )
+
+tests\test_suitability.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+modules\USP.py:246: in compute_usp_score
+    found_on_comps = _tfidf_match_verify(feat_name, feat_desc, scraped_pages)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+feature_name = 'FeatureA', feature_description = 'Does X'
+competitor_pages = {'Comp1': {'name': 'Comp1', 'text': 'We have FeatureA which does X', 'url': 'https://comp1.example.com'}, 'Comp2': {'n...'url': 'https://comp2.example.com'}, 'Comp3': {'name': 'Comp3', 'text': 'nothing', 'url': 'https://comp3.example.com'}}
+
+    def _tfidf_match_verify(
+        feature_name: str,
+        feature_description: str,
+        competitor_pages: List[Dict[str, str]],
+    ) -> List[str]:
+        """
+        Check if a feature claim is present on competitor pages using TF-IDF and
+        cosine similarity matching. A similarity score > 0.65 means the feature
+        is DISPUTED (found on a competitor's site), per the spec.
+        """
+        found_on = []
+    
+        # Combine claim name and description to form the target query
+        query_text = f"{feature_name} {feature_description}".lower().strip()
+    
+        if not query_text:
+            return found_on
+    
+        vectorizer = TfidfVectorizer(stop_words="english")
+    
+        for page in competitor_pages:
+>           raw_text = page.get('text')
+                       ^^^^^^^^
+E           AttributeError: 'str' object has no attribute 'get'
+
+modules\USP.py:116: AttributeError
+________________ TestUSPRefinement.test_explicit_text_matching ________________
+
+self = <tests.test_usp_refinement.TestUSPRefinement testMethod=test_explicit_text_matching>
+
+    def test_explicit_text_matching(self):
+        # Test that TF-IDF matching is deterministic
+        from modules.USP import _tfidf_match_verify
+    
+        pages = [{"name": "Comp1", "text": "We offer high-speed blockchain transactions."}]
+    
+        # Explicit match (feature name)
+        disputed = _tfidf_match_verify("blockchain transactions", "desc", pages)
+>       self.assertIn("Comp1", disputed)
+E       AssertionError: 'Comp1' not found in []
+
+tests\test_usp_refinement.py:74: AssertionError
+============================== warnings summary ===============================
+tests/test_full_suitability.py::TestFullSuitability::test_weight_redistribution
+  C:\Users\polak\research\competitive\modules\Scoring_Engine.py:225: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "computed_at": datetime.datetime.utcnow().isoformat() + "Z",
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_full_suitability.py::TestFullSuitability::test_weight_redistribution
+FAILED tests/test_suitability.py::TestUSP::test_usp_score_denominator - Attri...
+FAILED tests/test_suitability.py::TestUSP::test_usp_confidence_high - Attribu...
+FAILED tests/test_suitability.py::TestUSP::test_usp_confidence_medium - Attri...
+FAILED tests/test_suitability.py::TestUSP::test_usp_score_all_verified - Attr...
+FAILED tests/test_suitability.py::TestUSP::test_usp_tfidf_dispute_found - Att...
+FAILED tests/test_usp_refinement.py::TestUSPRefinement::test_explicit_text_matching
+================= 7 failed, 50 deselected, 1 warning in 5.58s =================

@@ -78,8 +78,11 @@ class TestFullSuitability(unittest.TestCase):
         self.assertIn("Fintech", summary)
         self.assertIn("Monthly Active Users", summary)
 
-    def test_gtm_market_matching(self):
+    @patch('modules.GTM_Preseed.process.extractOne')
+    def test_gtm_market_matching(self, mock_extract):
         """Test the rule-based market description matching."""
+        mock_extract.return_value = ("Developer Tools", 100.0, 5)
+
         # Matches "Developer Tools"
         res = compute_composite(
             market_description="We build tools for developers to automate CI/CD.",

@@ -13,28 +13,33 @@ def test_api():
     time.sleep(20) # Increase wait time for model loading
     
     # Load sample data
-    with open("sample_startup.json", "r") as f:
+    with open("data/test_custom_startup.json", "r") as f:
         payload = json.load(f)
     
     try:
         print("Sending request to /score endpoint...")
-        response = requests.post("http://127.0.0.1:8000/score", json=payload)
+        response = requests.post("http://127.0.0.1:8000/score", data={"data": json.dumps(payload)})
         
         if response.status_code == 200:
             result = response.json()
             print("\n--- API Response (Unified Scoring) ---")
             print(json.dumps(result, indent=2))
             
+            # Save to file so the user can see the full output
+            with open("custom_startup_score_result.json", "w") as out_file:
+                json.dump(result, out_file, indent=2)
+            
             # Verify Pillar Order
-            pillars = list(result["pillars"].keys())
-            expected_order = ["usp", "gtm", "pricing_business_model", "proprietary_tech"]
+            pillars = list(result.get("pillar_results", {}).keys())
+            expected_order = ["USP", "GTM", "PRICING", "TECH"]
             print(f"\nPillar Order Check: {pillars}")
             if pillars == expected_order:
                 print("✅ Pillar order is correct (USP, GTM, Pricing, Tech)")
             else:
-                print("❌ Pillar order mismatch!")
+                print("❌ Pillar order mismatch or missing keys!")
                 
-            print(f"\nFinal Suitability Score: {result['final_suitability_score']}")
+            print(f"\nFinal Suitability Score (Composite): {result.get('composite_score')}")
+            print(f"Suitability Label: {result.get('suitability_label')}")
         else:
             print(f"❌ API Error: {response.status_code}")
             print(response.text)

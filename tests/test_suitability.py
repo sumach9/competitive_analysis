@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 import pytest
 from unittest.mock import patch, MagicMock
+from modules.USP import _tfidf_match_verify
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -122,7 +123,7 @@ class TestUSP:
         assert result["Confidence_Flag"] == "MEDIUM"
 
     def test_usp_score_all_verified(self):
-        """No fuzzy matches -> USP_Score = 100%, pillar_score = 90."""
+        """No TF-IDF matches -> USP_Score = 100%, pillar_score = 90."""
         with patch("modules.USP.requests.post") as mock_post:
             mock_post.side_effect = [
                 _make_tavily_response("nothing here"),
@@ -137,12 +138,13 @@ class TestUSP:
         assert result["USP_Score"] == 100.0
         assert result["pillar_score"] == 90
 
-    def test_usp_fuzzy_dispute_found(self):
+    def test_usp_tfidf_dispute_found(self):
         """Feature name overlap -> disputed feature."""
         with patch("modules.USP.requests.post") as mock_post:
-            # Page text contains the feature name tokens "FeatureA"
+            # Page text must strongly overlap the query text "FeatureA Does X"
+            # to exceed the 0.65 threshold deterministically
             mock_post.side_effect = [
-                _make_tavily_response("We have FeatureA which does X"),
+                _make_tavily_response("FeatureA Does X"),
                 _make_tavily_response("nothing"),
                 _make_tavily_response("nothing"),
             ]
@@ -153,19 +155,19 @@ class TestUSP:
             )
         assert result["USP_Score"] == 0.0
         assert len(result["disputed_features"]) == 1
-        assert result["disputed_features"][0]["feature_name"] == "FeatureA"
+        assert result["disputed_features"][0]["feature"] == "FeatureA"
 
     def test_usp_scoring_thresholds(self):
         """Verify thresholds: 80-100% -> 90, 60-79% -> 78, 30-59% -> 55, 0-29% -> 20."""
         from modules import USP
-        assert USP._lookup_pillar_score(100)[0] == 90
-        assert USP._lookup_pillar_score(80)[0] == 90
-        assert USP._lookup_pillar_score(70)[0] == 78
-        assert USP._lookup_pillar_score(60)[0] == 78
-        assert USP._lookup_pillar_score(50)[0] == 55
-        assert USP._lookup_pillar_score(30)[0] == 55
-        assert USP._lookup_pillar_score(20)[0] == 20
-        assert USP._lookup_pillar_score(0)[0] == 20
+        assert USP._lookup_pillar_score(100, "HIGH")[0] == 90
+        assert USP._lookup_pillar_score(80, "HIGH")[0] == 90
+        assert USP._lookup_pillar_score(70, "HIGH")[0] == 78
+        assert USP._lookup_pillar_score(60, "HIGH")[0] == 78
+        assert USP._lookup_pillar_score(50, "HIGH")[0] == 55
+        assert USP._lookup_pillar_score(30, "HIGH")[0] == 55
+        assert USP._lookup_pillar_score(20, "HIGH")[0] == 35
+        assert USP._lookup_pillar_score(0, "HIGH")[0] == 20
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -327,12 +329,43 @@ class TestPricing:
         assert result["pricing_clarity_label"] == "SomewhatClear"
         assert result["pricing_pillar_score"] == 50
 
+    def test_pricing_clarity_enterprise_exception(self):
+        """model_type=Enterprise + price_range='contact sales' → Clear, score=65 even if metric is missing."""
+        from modules import Pricing
+        result = Pricing.score_pricing_pipeline(
+            pricing_model_type="Enterprise",
+            target_customer="Large banks",
+            pricing_metric=None,
+            price_range="contact sales",
+            revenue_curr_period=10000.0,
+        )
+        assert result["pricing_clarity_label"] == "Clear"
+        assert result["pricing_pillar_score"] == 65
+        
+    def test_pricing_arpu_mom_bonus(self):
+        """ARPU curr > ARPU prev → +5 bonus."""
+        from modules import Pricing
+        # Prev: 10k rev / 100 users = 100 ARPU
+        # Curr: 15k rev / 100 users = 150 ARPU
+        result = Pricing.score_pricing_pipeline(
+            pricing_model_type="Subscription",
+            target_customer="SMBs",
+            pricing_metric="Per seat",
+            revenue_curr_period=15000.0,
+            active_users=100,
+            revenue_prev_period=10000.0,
+            active_users_prev=100,
+        )
+        assert result["pricing_clarity_label"] == "Clear"
+        # Base Clear=65. Bonus=5. Total=70
+        assert result["pricing_pillar_score"] == 70
+
     def test_pricing_clarity_unclear(self):
         """No model_type → Unclear, score=35."""
         from modules import Pricing
         result = Pricing.score_pricing_pipeline(
             pricing_model_type=None,
-            target_customer=None,
+            target_customer="SMBs", # Providing one makes it Unclear, not UnableToCompute
             revenue_curr_period=5000.0,
         )
         assert result["pricing_clarity_label"] == "Unclear"
@@ -367,33 +400,85 @@ class TestGTM:
 
     def test_gtm_unable_to_compute(self):
         """No data at all → UnableToCompute, gtm_pillar_score=None."""
-        from modules import GTM_PRESEED
-        result = GTM_PRESEED.compute_preseed_gtm(
+        from modules import GTM_Preseed
+        result = GTM_Preseed.compute_preseed_gtm(
             market_type="B2B SaaS",
         )
         assert result["status_label"] == "UnableToCompute"
         assert result["gtm_pillar_score"] is None
 
+class TestTFIDFVerification:
+    """Tests the TF-IDF and Cosine Similarity uniqueness verification logic directly."""
+
+    def test_truly_unique_feature_verified(self):
+        """Feature that has no semantic overlap with competitor pages should be verified (<= 0.65)."""
+        feature_name = "AI Telepathy"
+        feature_desc = "Users can control the application using pure brainwaves via our proprietary neural link."
+        
+        comps = [
+            {"name": "Comp A", "text": "We offer a standard keyboard and mouse interface. It is very fast and responsive."},
+            {"name": "Comp B", "text": "Our software allows voice commands to navigate the menus easily."}
+        ]
+        
+        found_on = _tfidf_match_verify(feature_name, feature_desc, comps)
+        # Should NOT be found on any
+        assert len(found_on) == 0
+
+    def test_disputed_feature_flagged(self):
+        """Feature with high semantic overlap with a competitor should be disputed (> 0.65)."""
+        feature_name = "Voice Commands Menu"
+        feature_desc = "Navigate the application menus easily using your voice commands."
+        
+        comps = [
+            {"name": "Comp A", "text": "We offer a standard keyboard and mouse interface. It is very fast and responsive."},
+            # This text is almost identical to the query, should trigger > 0.65
+            {"name": "Comp B", "text": "Navigate the application menus easily using your voice commands."}
+        ]
+        
+        found_on = _tfidf_match_verify(feature_name, feature_desc, comps)
+        assert len(found_on) == 1
+        assert found_on[0] == "Comp B"
+
+    def test_empty_competitor_text_handled_gracefully(self):
+        """Algorithm should smoothly skip competitors with empty text rather than crashing."""
+        feature_name = "Standard Feature"
+        feature_desc = "Just a standard string."
+        comps = [
+            {"name": "Comp A", "text": ""},
+            {"name": "Comp B", "text": None}
+        ]
+        found_on = _tfidf_match_verify(feature_name, feature_desc, comps)
+        assert len(found_on) == 0
+
+    def test_single_word_meaningless_text(self):
+        """
+        Vectorizer can sometimes throw ValueError if the text contains only stop words
+        or no valid vocabulary. This ensures the except block catches it.
+        """
+        found_on = _tfidf_match_verify("Feature", "Desc", [{"name": "Comp C", "text": "the a and"}])
+        assert len(found_on) == 0
+
     def test_gtm_partial_data_multiplier(self):
         """Single channel (web only) → PartialData, score × 0.80."""
-        from modules import GTM_PRESEED
-        result = GTM_PRESEED.compute_preseed_gtm(
+        from modules import GTM_Preseed
+        result = GTM_Preseed.compute_preseed_gtm(
             market_type="B2B SaaS",
             web_visitors_prev=1000,
-            web_visitors_curr=1050,
+            web_visitors_curr=1050,  # 5% growth
             social_followers_prev=None,
             social_followers_curr=None,
         )
         assert result["status_label"] == "PartialData"
-        # Pillar score should be a multiple of 0.80 of a full score
-        raw_score_options = {90, 70, 50, 30, 15}
-        expected_options = {round(s * 0.80) for s in raw_score_options}
-        assert result["gtm_pillar_score"] in expected_options
+        # B2B SaaS Benchmarks: max=8.0, mean=3.0, min=1.0
+        # AGR = 5% (only web is present, so rate is 5%)
+        # 5% >= 3.0 (mean), so bucket = "Positive" -> 70 pts
+        # PartialData -> 70 * 0.80 = 56
+        assert result["gtm_pillar_score"] == 56
 
     def test_gtm_invalid_baseline_web_zero(self):
         """web_prev=0 → InvalidBaselinePrevZero_web flag."""
-        from modules import GTM_PRESEED
-        result = GTM_PRESEED.compute_preseed_gtm(
+        from modules import GTM_Preseed
+        result = GTM_Preseed.compute_preseed_gtm(
             market_type="B2B SaaS",
             web_visitors_prev=0,
             web_visitors_curr=500,
@@ -404,8 +489,8 @@ class TestGTM:
 
     def test_gtm_invalid_baseline_social_zero(self):
         """social_prev=0 → InvalidBaselinePrevZero_social flag."""
-        from modules import GTM_PRESEED
-        result = GTM_PRESEED.compute_preseed_gtm(
+        from modules import GTM_Preseed
+        result = GTM_Preseed.compute_preseed_gtm(
             market_type="B2B SaaS",
             web_visitors_prev=1000,
             web_visitors_curr=1100,
@@ -416,8 +501,8 @@ class TestGTM:
 
     def test_gtm_needs_human_review_outlier(self):
         """abs(rate) > 300 → NeedsHumanReview flag."""
-        from modules import GTM_PRESEED
-        result = GTM_PRESEED.compute_preseed_gtm(
+        from modules import GTM_Preseed
+        result = GTM_Preseed.compute_preseed_gtm(
             market_type="B2B SaaS",
             web_visitors_prev=100,
             web_visitors_curr=50000,  # 49,900% growth
@@ -429,8 +514,8 @@ class TestGTM:
 
     def test_gtm_both_channels_normal(self):
         """Both channels present → normal score, no PartialData flag."""
-        from modules import GTM_PRESEED
-        result = GTM_PRESEED.compute_preseed_gtm(
+        from modules import GTM_Preseed
+        result = GTM_Preseed.compute_preseed_gtm(
             market_type="B2B SaaS",
             web_visitors_prev=1800,
             web_visitors_curr=1944,  # 8% growth

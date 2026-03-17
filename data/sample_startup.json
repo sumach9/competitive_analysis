@@ -98,5 +98,5 @@
         "https://novatech-ai.io/whitepaper-obligation-intelligence.pdf"
     ],
     "tech_description": "Core NLP pipeline built on fine-tuned LegalBERT with a proprietary graph database layer (Neo4j-based) for cross-contract dependency mapping. Inference latency <200ms p95 on a 50-page contract. Obligation graph algorithm is novel — no public equivalent found in LegalTech literature.",
-    "run_patent_verification": false
+    "run_patent_verification": true
 }

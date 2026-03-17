@@ -233,6 +233,7 @@ def calculate_technical_build_depth(
     company_name: str = "",
     evidence_links: Optional[list[str]] = None,
     tech_description: Optional[str] = None,
+    evidence_links_reachable: bool = False,
     run_patent_verification: bool = True,     # set False in unit tests
 ) -> dict:
     """
@@ -341,6 +342,18 @@ def calculate_technical_build_depth(
         f"{pat_note}."
     )
 
+    # ── Validation Score ──
+    v_score = 0
+    if custom_build_level >= 50 and evidence_links:
+        v_score += 40
+    if patent_verified:
+        v_score += 30
+    if tech_description and len(tech_description) >= 100:
+        v_score += 20
+    if evidence_links_reachable:
+        v_score += 10
+    validation_score = min(v_score, 100)
+
     return {
         "custom_build_level": custom_build_level,
         "depth_label": depth_label,
@@ -354,5 +367,6 @@ def calculate_technical_build_depth(
         "tech_pillar_score": pillar_score,
         "evidence_links": evidence_links,
         "tech_description": tech_description,
+        "validation_score": validation_score,
         "data_provenance_note": data_provenance_note,
     }

@@ -1,0 +1,77 @@
+{
+    "company_name": "CyberShield Networks",
+    "company_stage": "Seed",
+    "startup_domain": "cybershield-networks.co",
+    "market_type": "Cybersecurity",
+    "market_description": "Next-generation endpoint protection leveraging quantum-resistant cryptographic protocols for enterprise environments.",
+    "geographic_focus": "Europe",
+    "feature_list": [
+        "Quantum-resistant encryption layer",
+        "AI-driven anomaly detection",
+        "Automated threat remediation",
+        "Endpoint micro-segmentation",
+        "Zero-trust network access (ZTNA)",
+        "Behavioral analytics"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "Quantum-Resistant Key Exchange (QRKE)",
+            "description": "Proprietary key exchange protocol resistant to attacks from large-scale quantum computers, utilizing lattice-based cryptography.",
+            "not_in_competitors": ["CrowdStrike", "SentinelOne"],
+            "own_product_url": "https://cybershield-networks.co/tech/qrke"
+        },
+        {
+            "feature_name": "Micro-Segmentation AI Kernel",
+            "description": "Kernel-level AI that automatically segments endpoint processes to isolate localized malware outbreaks instantly without network rules.",
+            "not_in_competitors": ["CrowdStrike", "SentinelOne", "Palo Alto Networks"],
+            "own_product_url": "https://cybershield-networks.co/tech/microseg"
+        }
+    ],
+    "competitors": [
+        {
+            "name": "CrowdStrike",
+            "product_url": "https://www.crowdstrike.com/endpoint-security/",
+            "domain": "crowdstrike.com"
+        },
+        {
+            "name": "SentinelOne",
+            "product_url": "https://www.sentinelone.com/platform/endpoint-protection/",
+            "domain": "sentinelone.com"
+        },
+        {
+            "name": "Palo Alto Networks",
+            "product_url": "https://www.paloaltonetworks.com/cortex/cortex-xdr",
+            "domain": "paloaltonetworks.com"
+        }
+    ],
+    "web_visitors_prev": 1200,
+    "web_visitors_curr": 2500,
+    "social_followers_prev": 450,
+    "social_followers_curr": 800,
+    "pricing_model_type": "Subscription",
+    "target_customer": "Enterprise CISOs and Security Operations Centers (SOCs)",
+    "pricing_metric": "Per endpoint, per year",
+    "price_range": "$80-$150/endpoint/year depending on features and volume",
+    "who_pays_vs_who_uses": "CISO pays; Security analysts and IT admins use it daily",
+    "paying_segment": "Chief Information Security Officer (CISO)",
+    "pricing_evidence_links": [
+        "https://cybershield-networks.co/pricing",
+        "https://www.crowdstrike.com/pricing"
+    ],
+    "analyst_notes": "Early commercialization; 5 pilot customers in financial services. Pricing is premium compared to legacy AV but competitive with next-gen XDR. Strong focus on high-security enterprise.",
+    "total_revenue": 150000.0,
+    "custom_build_level": 100,
+    "patent_status": "Granted",
+    "patent_numbers": ["US11/987,654"],
+    "inventor_names": [
+        {"first": "Elena", "last": "Rostov"},
+        {"first": "David", "last": "Chen"}
+    ],
+    "assignee_company_name": "CyberShield Networks Ltd.",
+    "tech_evidence_links": [
+        "https://github.com/cybershield-networks/qrke-core",
+        "https://cybershield-networks.co/whitepapers/quantum-encryption.pdf"
+    ],
+    "tech_description": "Built from scratch using a custom Rust-based microkernel architecture for maximum performance and security. Proprietary lattice-based cryptographic algorithms implemented for post-quantum security guarantees.",
+    "run_patent_verification": true
+}

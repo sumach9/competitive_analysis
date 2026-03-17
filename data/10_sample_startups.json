@@ -1,0 +1,405 @@
+[
+  {
+    "company_name": "MediFlow AI",
+    "company_stage": "Pre-Seed",
+    "startup_domain": "mediflow-ai.health",
+    "market_type": "HealthTech",
+    "market_description": "We build AI triage systems for hospital emergency rooms to prioritize patient backlog.",
+    "geographic_focus": "North America",
+    "feature_list": [
+        "Real-time triage scoring",
+        "EHR integration",
+        "Predictive bed availability"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "Biometric predictive routing",
+            "description": "Uses ambient audio in waiting rooms to flag respiratory distress automatically.",
+            "not_in_competitors": ["Epic", "Cerner"],
+            "own_product_url": "https://mediflow-ai.health/features/routing"
+        }
+    ],
+    "competitors": [
+        {"name": "Epic", "domain": "epic.com", "product_url": "https://epic.com/software"},
+        {"name": "Cerner", "domain": "cerner.com", "product_url": "https://cerner.com/solutions"}
+    ],
+    "web_visitors_prev": 1200,
+    "web_visitors_curr": 2500,
+    "social_followers_prev": 500,
+    "social_followers_curr": 900,
+    "pricing_model_type": "Enterprise",
+    "target_customer": "Hospitals",
+    "pricing_metric": "Per bed",
+    "price_range": "contact sales",
+    "total_revenue": 0.0,
+    "active_users": 0,
+    "revenue_prev_period": 0.0,
+    "active_users_prev": 0,
+    "custom_build_level": 100,
+    "patent_status": "Pending",
+    "patent_numbers": ["US63/111,222"],
+    "run_patent_verification": true
+  },
+  {
+    "company_name": "DevSec Automate",
+    "company_stage": "Seed",
+    "startup_domain": "devsec-automate.dev",
+    "market_type": "Developer Tools",
+    "market_description": "We offer CI/CD pipeline security scanning for containerized apps.",
+    "geographic_focus": "Europe",
+    "feature_list": [
+        "Container image scanning",
+        "Secret detection",
+        "Infrastructure as Code validation"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "Zero-trust memory isolation",
+            "description": "Scans containers during runtime inside isolated memory enclaves without pausing execution.",
+            "not_in_competitors": ["Snyk", "Aqua Security"],
+            "own_product_url": "https://devsec-automate.dev/tech"
+        }
+    ],
+    "competitors": [
+        {"name": "Snyk", "domain": "snyk.io", "product_url": "https://snyk.io/"},
+        {"name": "Aqua Security", "domain": "aquasec.com", "product_url": "https://aquasec.com/"}
+    ],
+    "web_visitors_prev": 8000,
+    "web_visitors_curr": 8500,
+    "social_followers_prev": 1200,
+    "social_followers_curr": 1250,
+    "pricing_model_type": "Usage-Based",
+    "target_customer": "DevOps Teams",
+    "pricing_metric": "Per scan",
+    "price_range": "$0.05 per scan",
+    "total_revenue": 10000.0,
+    "active_users": 500,
+    "revenue_prev_period": 8000.0,
+    "active_users_prev": 450,
+    "custom_build_level": 75,
+    "patent_status": "None",
+    "run_patent_verification": false
+  },
+  {
+    "company_name": "EduQuest VR",
+    "company_stage": "Pre-Seed",
+    "startup_domain": "eduquestvr.com",
+    "market_type": "EdTech",
+    "market_description": "VR educational experiences for middle school science curriculums.",
+    "geographic_focus": "Global",
+    "feature_list": [
+        "Biology cellular VR tours",
+        "Physics lab simulations",
+        "Teacher dashboard"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "Haptic feedback chemistry",
+            "description": "Integrates with standard VR controllers to simulate weight and resistance when pouring virtual chemicals.",
+            "not_in_competitors": ["Labster", "VictoryXR"],
+            "own_product_url": "https://eduquestvr.com/haptics"
+        }
+    ],
+    "competitors": [
+        {"name": "Labster", "domain": "labster.com", "product_url": "https://labster.com/"},
+        {"name": "VictoryXR", "domain": "victoryxr.com", "product_url": "https://victoryxr.com/"}
+    ],
+    "web_visitors_prev": 400,
+    "web_visitors_curr": 900,
+    "social_followers_prev": 100,
+    "social_followers_curr": 150,
+    "pricing_model_type": "Subscription",
+    "target_customer": "School Districts",
+    "pricing_metric": "Per student",
+    "price_range": "$10/student/year",
+    "total_revenue": 0.0,
+    "active_users": 0,
+    "revenue_prev_period": 0.0,
+    "active_users_prev": 0,
+    "custom_build_level": 50,
+    "patent_status": "None",
+    "run_patent_verification": false
+  },
+  {
+    "company_name": "LedgerFast",
+    "company_stage": "Seed",
+    "startup_domain": "ledgerfast.io",
+    "market_type": "Fintech",
+    "market_description": "Ultra-fast automated bookkeeping and payroll for freelancers using AI.",
+    "geographic_focus": "North America",
+    "feature_list": [
+        "Auto-categorization of expenses",
+        "1-click tax estimation",
+        "Sync with bank accounts"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "Micro-payroll streaming",
+            "description": "Allows freelancers to get paid streaming per-hour in real-time instantly routing to tax buckets.",
+            "not_in_competitors": ["QuickBooks", "Xero"],
+            "own_product_url": "https://ledgerfast.io/streaming"
+        }
+    ],
+    "competitors": [
+        {"name": "QuickBooks", "domain": "quickbooks.intuit.com", "product_url": "https://quickbooks.intuit.com/"},
+        {"name": "Xero", "domain": "xero.com", "product_url": "https://xero.com/"}
+    ],
+    "web_visitors_prev": 15000,
+    "web_visitors_curr": 22000,
+    "social_followers_prev": 3000,
+    "social_followers_curr": 4500,
+    "pricing_model_type": "Freemium",
+    "target_customer": "Freelancers",
+    "pricing_metric": "Flat rate",
+    "price_range": "$15/mo premium",
+    "total_revenue": 4500.0,
+    "active_users": 300,
+    "revenue_prev_period": 2000.0,
+    "active_users_prev": 200,
+    "custom_build_level": 25,
+    "patent_status": "None",
+    "run_patent_verification": false
+  },
+  {
+    "company_name": "AgriYield Drones",
+    "company_stage": "Pre-Seed",
+    "startup_domain": "agriyield.io",
+    "market_type": "AgriTech",
+    "market_description": "We build drone software for monitoring crop health and optimizing fertilizer spread.",
+    "geographic_focus": "Global",
+    "feature_list": [
+        "NDVI crop mapping",
+        "Automated flight paths",
+        "Yield prediction"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "Swarm-logic spraying",
+            "description": "Coordinates 5+ drones simultaneously to spread fertilizer based on real-time micro-climate wind shifts.",
+            "not_in_competitors": ["Sentera", "DroneDeploy"],
+            "own_product_url": "https://agriyield.io/swarm"
+        }
+    ],
+    "competitors": [
+        {"name": "DroneDeploy", "domain": "dronedeploy.com", "product_url": "https://dronedeploy.com/"},
+        {"name": "Sentera", "domain": "sentera.com", "product_url": "https://sentera.com/"}
+    ],
+    "web_visitors_prev": 500,
+    "web_visitors_curr": 600,
+    "social_followers_prev": 100,
+    "social_followers_curr": 110,
+    "pricing_model_type": "Other",
+    "target_customer": "Commercial Farms",
+    "pricing_metric": "Per acre",
+    "price_range": "$2/acre",
+    "total_revenue": 0.0,
+    "active_users": 0,
+    "revenue_prev_period": 0.0,
+    "active_users_prev": 0,
+    "custom_build_level": 75,
+    "patent_status": "Pending",
+    "patent_numbers": ["US63/555,666"],
+    "run_patent_verification": true
+  },
+  {
+    "company_name": "EcoChain",
+    "company_stage": "Seed",
+    "startup_domain": "ecochain.xyz",
+    "market_type": "ClimateTech",
+    "market_description": "Blockchain tracking for carbon offsets and sustainable supply chains.",
+    "geographic_focus": "Europe",
+    "feature_list": [
+        "Carbon credit issuance",
+        "Supply chain transparency ledger",
+        "Automated ESG reporting"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "Satellite-verified sequestration",
+            "description": "Uses satellite imagery APIs to automatically burn carbon tokens if deforestation is detected in the protected zone.",
+            "not_in_competitors": ["Pachama", "Sylvera"],
+            "own_product_url": "https://ecochain.xyz/satellite"
+        }
+    ],
+    "competitors": [
+        {"name": "Pachama", "domain": "pachama.com", "product_url": "https://pachama.com/"},
+        {"name": "Sylvera", "domain": "sylvera.com", "product_url": "https://sylvera.com/"}
+    ],
+    "web_visitors_prev": 3000,
+    "web_visitors_curr": 2900,
+    "social_followers_prev": 1500,
+    "social_followers_curr": 1500,
+    "pricing_model_type": "Transaction Fee",
+    "target_customer": "Corporate ESG Teams",
+    "pricing_metric": "Per transaction",
+    "price_range": "1.5% fee per credit",
+    "total_revenue": 50000.0,
+    "active_users": 10,
+    "revenue_prev_period": 60000.0,
+    "active_users_prev": 12,
+    "custom_build_level": 50,
+    "patent_status": "None",
+    "run_patent_verification": false
+  },
+  {
+    "company_name": "RetailSense",
+    "company_stage": "Pre-Seed",
+    "startup_domain": "retailsense.ai",
+    "market_type": "RetailTech",
+    "market_description": "Brick and mortar retail analytics using existing security cameras to track footfall and shelf interactions.",
+    "geographic_focus": "North America",
+    "feature_list": [
+        "Heatmap generation",
+        "Dwell time analytics",
+        "Queue management alerts"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "Anonymous demographic inference",
+            "description": "Privacy-first edge processing that infers age/gender without sending face data to the cloud.",
+            "not_in_competitors": ["RetailNext", "ShopperTrak"],
+            "own_product_url": "https://retailsense.ai/privacy"
+        }
+    ],
+    "competitors": [
+        {"name": "RetailNext", "domain": "retailnext.net", "product_url": "https://retailnext.net/"},
+        {"name": "ShopperTrak", "domain": "shoppertrak.com", "product_url": "https://shoppertrak.com/"}
+    ],
+    "web_visitors_prev": 100,
+    "web_visitors_curr": 400,
+    "social_followers_prev": 50,
+    "social_followers_curr": 80,
+    "pricing_model_type": "Subscription",
+    "target_customer": "Retail chains",
+    "pricing_metric": "Per camera",
+    "price_range": "$99/camera/month",
+    "total_revenue": 0.0,
+    "active_users": 0,
+    "revenue_prev_period": 0.0,
+    "active_users_prev": 0,
+    "custom_build_level": 75,
+    "patent_status": "None",
+    "run_patent_verification": false
+  },
+  {
+    "company_name": "LegalDraft Pro",
+    "company_stage": "Seed",
+    "startup_domain": "legaldraft.pro",
+    "market_type": "LegalTech",
+    "market_description": "We provide AI drafting assistants for law firms to generate initial contract drafts based on specific jurisdictions.",
+    "geographic_focus": "US",
+    "feature_list": [
+        "Jurisdiction-specific templates",
+        "Case law citation checker",
+        "MS Word plugin"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "Judge-specific stylistic alignment",
+            "description": "Adapts writing style and formatting to the historical preferences of a specific judge based on their past rulings.",
+            "not_in_competitors": ["Harvey", "LexisNexis"],
+            "own_product_url": "https://legaldraft.pro/judge"
+        }
+    ],
+    "competitors": [
+        {"name": "Harvey", "domain": "harvey.ai", "product_url": "https://harvey.ai/"},
+        {"name": "LexisNexis", "domain": "lexisnexis.com", "product_url": "https://lexisnexis.com/"}
+    ],
+    "web_visitors_prev": 5000,
+    "web_visitors_curr": 12000,
+    "social_followers_prev": 800,
+    "social_followers_curr": 1500,
+    "pricing_model_type": "Subscription",
+    "target_customer": "Law Firms",
+    "pricing_metric": "Per attorney",
+    "price_range": "$250/seat",
+    "total_revenue": 25000.0,
+    "active_users": 100,
+    "revenue_prev_period": 20000.0,
+    "active_users_prev": 100,
+    "custom_build_level": 75,
+    "patent_status": "Pending",
+    "patent_numbers": ["US63/999,000"],
+    "run_patent_verification": true
+  },
+  {
+    "company_name": "OmniSync Logistics",
+    "company_stage": "Pre-Seed",
+    "startup_domain": "omnisync.logistics",
+    "market_type": "LogisticsTech",
+    "market_description": "API unified tracking layer for independent freight forwarders to track multi-modal shipments.",
+    "geographic_focus": "Global",
+    "feature_list": [
+        "Multi-carrier tracking dashboard",
+        "Customs delay predictability",
+        "Automated BOL generation"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "Port congestion rerouting AI",
+            "description": "Predicts secondary port congestion and auto-bids for container rerouting 48 hours before arrival.",
+            "not_in_competitors": ["Flexport", "Project44"],
+            "own_product_url": "https://omnisync.logistics/reroute"
+        }
+    ],
+    "competitors": [
+        {"name": "Flexport", "domain": "flexport.com", "product_url": "https://flexport.com/"},
+        {"name": "Project44", "domain": "project44.com", "product_url": "https://project44.com/"}
+    ],
+    "web_visitors_prev": 800,
+    "web_visitors_curr": 850,
+    "social_followers_prev": 200,
+    "social_followers_curr": 210,
+    "pricing_model_type": "Usage-Based",
+    "target_customer": "Freight forwarders",
+    "pricing_metric": "Per shipment container tracked",
+    "price_range": "$5/container",
+    "total_revenue": 0.0,
+    "active_users": 0,
+    "revenue_prev_period": 0.0,
+    "active_users_prev": 0,
+    "custom_build_level": 50,
+    "patent_status": "None",
+    "run_patent_verification": false
+  },
+  {
+    "company_name": "NoCode Builder",
+    "company_stage": "Pre-Seed",
+    "startup_domain": "nocodebuilder.app",
+    "market_type": "Creator Economy",
+    "market_description": "Drag and drop app builder for influencers to launch their own branded community apps.",
+    "geographic_focus": "Global",
+    "feature_list": [
+        "Drag and drop UI",
+        "In-app purchases",
+        "Push notifications"
+    ],
+    "unique_feature_list": [
+        {
+            "feature_name": "TikTok specific monetization layer",
+            "description": "Hooks directly into TikTok Creator Fund APIs to allow users to spend TikTok coins directly inside the custom app.",
+            "not_in_competitors": ["Kajabi", "Mighty Networks"],
+            "own_product_url": "https://nocodebuilder.app/tiktok"
+        }
+    ],
+    "competitors": [
+        {"name": "Kajabi", "domain": "kajabi.com", "product_url": "https://kajabi.com/"},
+        {"name": "Mighty Networks", "domain": "mightynetworks.com", "product_url": "https://mightynetworks.com/"}
+    ],
+    "web_visitors_prev": 20000,
+    "web_visitors_curr": 60000,
+    "social_followers_prev": 5000,
+    "social_followers_curr": 25000,
+    "pricing_model_type": "Subscription",
+    "target_customer": "Influencers",
+    "pricing_metric": "Flat rate + rev share",
+    "price_range": "$49/mo + 2%",
+    "total_revenue": 0.0,
+    "active_users": 0,
+    "revenue_prev_period": 0.0,
+    "active_users_prev": 0,
+    "custom_build_level": 0,
+    "patent_status": "None",
+    "run_patent_verification": false
+  }
+]

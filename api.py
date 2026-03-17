@@ -18,15 +18,28 @@ try:
 except ImportError:
     pass  # keys must be set in system environment directly
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Optional
 import FINAL_SCORE
+import json
+import tempfile
+import os
+from utils.data_parser import parse_pitch_deck_document
 
 app = FastAPI(
     title="FFP Smart MVP — Suitability Scoring API",
     description="Four-pillar suitability evaluation for Pre-Seed startups.",
     version="2.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -120,17 +133,62 @@ def root():
 
 
 @app.post("/score")
-def score_startup(data: StartupData):
+async def score_startup(
+    data: str = Form(...),
+    pitch_deck: UploadFile = File(None)
+):
     """
-    Run the full suitability scoring pipeline.
+    Run the full suitability scoring pipeline via File Upload.
     Returns composite_score, suitability_label, and all four pillar results.
     """
     try:
-        payload = data.model_dump()
-        payload["unique_feature_list"] = [f.model_dump() for f in data.unique_feature_list]
-        payload["competitors"] = [c.model_dump() for c in data.competitors]
-        if data.inventor_names:
-            payload["inventor_names"] = [i.model_dump() for i in data.inventor_names]
+        # 1. Parse the JSON body
+        raw_dict = json.loads(data)
+        startup_data = StartupData(**raw_dict)
+        payload = startup_data.model_dump()
+        
+        # Required nested structures
+        payload["unique_feature_list"] = [f.model_dump() for f in startup_data.unique_feature_list]
+        payload["competitors"] = [c.model_dump() for c in startup_data.competitors]
+        if startup_data.inventor_names:
+            payload["inventor_names"] = [i.model_dump() for i in startup_data.inventor_names]
+
+        # 2. Extract Data from Pitch Deck if provided
+        if pitch_deck:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f"_{pitch_deck.filename}") as tmp:
+                content = await pitch_deck.read()
+                tmp.write(content)
+                tmp_path = tmp.name
+
+            try:
+                extracted = parse_pitch_deck_document(tmp_path)
+                
+                # Merge extracted features
+                if extracted.get("startup_features"):
+                    payload["feature_list"] = extracted["startup_features"]
+                    
+                # Merge extracted competitors matching dictionary schema
+                if extracted.get("competitors"):
+                    for comp in extracted["competitors"]:
+                        payload["competitors"].append({
+                            "name": comp.get("name", "Unknown Competitor"),
+                            "product_url": "", # BrightData/Tavily will handle null domain/url resolution 
+                            "domain": ""
+                        })
+                        
+                        # Use extracted features to generate a generic unique claim
+                        # Here we demonstrate auto-populating uniqueness
+                        if comp.get("feature_list"):
+                            payload["unique_feature_list"].append({
+                                "feature_name": f"Auto-Extracted Competitor Contrast: {comp.get('name')}",
+                                "description": f"Differentiators identified by parser.",
+                                "not_in_competitors": [comp.get("name")],
+                                "own_product_url": ""
+                            })
+
+            finally:
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
 
         report = FINAL_SCORE.get_final_scores(payload)
         return report

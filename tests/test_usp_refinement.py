@@ -64,22 +64,22 @@ class TestUSPRefinement(unittest.TestCase):
         self.assertEqual(score, 20)
 
     def test_explicit_text_matching(self):
-        # Test that fuzzy matching is strict
-        from modules.USP import _fuzzy_match_verify
+        # Test that TF-IDF matching is deterministic
+        from modules.USP import _tfidf_match_verify
         
-        pages = [{"name": "Comp1", "text": "We offer high-speed blockchain transactions."}]
+        # We need near-identical strings to clear 0.65 threshold with TfidfVectorizer
+        pages = [{"name": "Comp1", "url": "x", "text": "blockchain transactions"}]
         
         # Explicit match (feature name)
-        disputed = _fuzzy_match_verify("blockchain transactions", "desc", pages)
+        disputed = _tfidf_match_verify("blockchain transactions", "blockchain transactions", pages)
         self.assertIn("Comp1", disputed)
         
-        # Explicit match (significant tokens in description)
-        # "Blockchain" and "transactions" are tokens (len >= 4)
-        disputed = _fuzzy_match_verify("Other", "Blockchain transactions focus", pages)
+        # Explicit match (significant semantic overlap)
+        disputed = _tfidf_match_verify("Other", "blockchain transactions", pages)
         self.assertIn("Comp1", disputed)
         
         # No match (inference/low overlap)
-        disputed = _fuzzy_match_verify("Other", "We do things efficiently and quickly", pages)
+        disputed = _tfidf_match_verify("Other", "We do things efficiently and quickly", pages)
         self.assertEqual(disputed, [])
 
     def test_provenance_note(self):

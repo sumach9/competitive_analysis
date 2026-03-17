@@ -1,0 +1,237 @@
+[
+  {
+    "startup": "MediFlow AI",
+    "error": "evidence_links[] is required when custom_build_level >= 50 (current level: 100). Please provide at least one URL."
+  },
+  {
+    "startup": "DevSec Automate",
+    "error": "evidence_links[] is required when custom_build_level >= 50 (current level: 75). Please provide at least one URL."
+  },
+  {
+    "startup": "EduQuest VR",
+    "error": "evidence_links[] is required when custom_build_level >= 50 (current level: 50). Please provide at least one URL."
+  },
+  {
+    "startup": "LedgerFast",
+    "composite_score": 48.5,
+    "suitability_label": "Weak Signal",
+    "ai_executive_summary": "AWS Bedrock Summary generation failed: Unable to locate credentials",
+    "raw_report": {
+      "composite_score": 48.5,
+      "suitability_label": "Weak Signal",
+      "suitability_colour": "Orange",
+      "pillars_computed": [
+        "USP",
+        "GTM",
+        "PRICING",
+        "TECH"
+      ],
+      "pillars_unable_to_compute": [],
+      "weight_redistribution_applied": false,
+      "effective_weights": {
+        "USP": 0.35,
+        "GTM": 0.15,
+        "PRICING": 0.2,
+        "TECH": 0.3
+      },
+      "pillar_results": {
+        "USP": {
+          "USP_Score": 0.0,
+          "unique_feature_claim_count": 1,
+          "verified_unique_feature_count": 0,
+          "disputed_features": [],
+          "skipped_competitors": [
+            {
+              "name": "QuickBooks",
+              "url": "https://quickbooks.intuit.com/",
+              "reason": "Extraction failed (timeout/403/block)"
+            },
+            {
+              "name": "Xero",
+              "url": "https://xero.com/",
+              "reason": "Extraction failed (timeout/403/block)"
+            }
+          ],
+          "Confidence_Flag": "LOW",
+          "validation_score": 0,
+          "compute_status": "AllURLsFailed",
+          "pillar_score": 20,
+          "dashboard_status": "All URLs unreachable \u2014 neutral score assigned",
+          "data_provenance_note": "Based on founder-submitted claims, auto-verified against competitor pages."
+        },
+        "GTM": {
+          "AGR_raw": 48.33,
+          "web_growth_rate": 46.67,
+          "social_growth_rate": 50.0,
+          "gtm_signal_bucket": "Strong",
+          "gtm_pillar_score": 90,
+          "compute_path": "GA4/Manual",
+          "benchmark_source": "Founder-submitted manual entry",
+          "matched_market_type": "Fintech",
+          "confidence_level": "LOW",
+          "status_label": "OK",
+          "validation_score": 30,
+          "flags": [
+            "WEB_DATA_MANUAL"
+          ],
+          "dashboard_note": null
+        },
+        "PRICING": {
+          "pricing_clarity_label": "Clear",
+          "pricing_pillar_score": 65,
+          "pricing_model_type": "Freemium",
+          "target_customer": "Freelancers",
+          "pricing_metric": "Flat rate",
+          "price_range": "$15/mo premium",
+          "who_pays_vs_who_uses": null,
+          "paying_segment": null,
+          "ai_pricing_summary": "The startup employs a Freemium pricing model targeting Freelancers based on Flat rate in the $15/mo premium range. This approach is typical for the Fintech sector in 2026, focusing on scalability through value-based unit economics.",
+          "evidence_links": [],
+          "analyst_notes": null,
+          "validation_score": 60,
+          "data_provenance_note": "Pricing model: founder-submitted."
+        },
+        "TECH": {
+          "custom_build_level": 25,
+          "depth_label": "Neutral",
+          "base_score": 50,
+          "patent_status_declared": "None",
+          "patent_verified": false,
+          "patent_verification_step": null,
+          "patent_display_label": null,
+          "patent_number_verified": "",
+          "patent_bonus": 0,
+          "tech_pillar_score": 50,
+          "evidence_links": [],
+          "tech_description": null,
+          "validation_score": 0,
+          "data_provenance_note": "Build depth: founder-submitted, evidence required at level \u226550. Patent status: Founder-declared None, unverified."
+        }
+      },
+      "ai_executive_summary": "AWS Bedrock Summary generation failed: Unable to locate credentials",
+      "computed_at": "2026-03-17T22:55:56.125273Z"
+    }
+  },
+  {
+    "startup": "AgriYield Drones",
+    "error": "evidence_links[] is required when custom_build_level >= 50 (current level: 75). Please provide at least one URL."
+  },
+  {
+    "startup": "EcoChain",
+    "error": "evidence_links[] is required when custom_build_level >= 50 (current level: 50). Please provide at least one URL."
+  },
+  {
+    "startup": "RetailSense",
+    "error": "evidence_links[] is required when custom_build_level >= 50 (current level: 75). Please provide at least one URL."
+  },
+  {
+    "startup": "LegalDraft Pro",
+    "error": "evidence_links[] is required when custom_build_level >= 50 (current level: 75). Please provide at least one URL."
+  },
+  {
+    "startup": "OmniSync Logistics",
+    "error": "evidence_links[] is required when custom_build_level >= 50 (current level: 50). Please provide at least one URL."
+  },
+  {
+    "startup": "NoCode Builder",
+    "composite_score": 44.0,
+    "suitability_label": "Weak Signal",
+    "ai_executive_summary": "AWS Bedrock Summary generation failed: Unable to locate credentials",
+    "raw_report": {
+      "composite_score": 44.0,
+      "suitability_label": "Weak Signal",
+      "suitability_colour": "Orange",
+      "pillars_computed": [
+        "USP",
+        "GTM",
+        "PRICING",
+        "TECH"
+      ],
+      "pillars_unable_to_compute": [],
+      "weight_redistribution_applied": false,
+      "effective_weights": {
+        "USP": 0.35,
+        "GTM": 0.15,
+        "PRICING": 0.2,
+        "TECH": 0.3
+      },
+      "pillar_results": {
+        "USP": {
+          "USP_Score": 0.0,
+          "unique_feature_claim_count": 1,
+          "verified_unique_feature_count": 0,
+          "disputed_features": [],
+          "skipped_competitors": [
+            {
+              "name": "Kajabi",
+              "url": "https://kajabi.com/",
+              "reason": "Extraction failed (timeout/403/block)"
+            },
+            {
+              "name": "Mighty Networks",
+              "url": "https://mightynetworks.com/",
+              "reason": "Extraction failed (timeout/403/block)"
+            }
+          ],
+          "Confidence_Flag": "LOW",
+          "validation_score": 0,
+          "compute_status": "AllURLsFailed",
+          "pillar_score": 20,
+          "dashboard_status": "All URLs unreachable \u2014 neutral score assigned",
+          "data_provenance_note": "Based on founder-submitted claims, auto-verified against competitor pages."
+        },
+        "GTM": {
+          "AGR_raw": 300.0,
+          "web_growth_rate": 200.0,
+          "social_growth_rate": 400.0,
+          "gtm_signal_bucket": "Strong",
+          "gtm_pillar_score": 90,
+          "compute_path": "GA4/Manual",
+          "benchmark_source": "Founder-submitted manual entry",
+          "matched_market_type": "Other",
+          "confidence_level": "LOW",
+          "status_label": "OK",
+          "validation_score": 30,
+          "flags": [
+            "WEB_DATA_MANUAL",
+            "MARKET_TYPE_LABEL_MATCHED:Other"
+          ],
+          "dashboard_note": null
+        },
+        "PRICING": {
+          "pricing_clarity_label": "PreRevenue",
+          "pricing_pillar_score": 50,
+          "pricing_model_type": "Subscription",
+          "target_customer": "Influencers",
+          "pricing_metric": "Flat rate + rev share",
+          "price_range": "$49/mo + 2%",
+          "who_pays_vs_who_uses": null,
+          "paying_segment": null,
+          "ai_pricing_summary": "The startup employs a Subscription pricing model targeting Influencers based on Flat rate + rev share in the $49/mo + 2% range. This approach is typical for the Creator Economy sector in 2026, focusing on scalability through value-based unit economics.",
+          "evidence_links": [],
+          "analyst_notes": null,
+          "validation_score": 40,
+          "data_provenance_note": "Pricing model: founder-submitted."
+        },
+        "TECH": {
+          "custom_build_level": 0,
+          "depth_label": "Neutral",
+          "base_score": 45,
+          "patent_status_declared": "None",
+          "patent_verified": false,
+          "patent_verification_step": null,
+          "patent_display_label": null,
+          "patent_number_verified": "",
+          "patent_bonus": 0,
+          "tech_pillar_score": 45,
+          "evidence_links": [],
+          "tech_description": null,
+          "validation_score": 0,
+          "data_provenance_note": "Build depth: founder-submitted, evidence required at level \u226550. Patent status: Founder-declared None, unverified."
+        }
+      },
+      "ai_executive_summary": "AWS Bedrock Summary generation failed: Unable to locate credentials",
+      "computed_at": "2026-03-17T22:55:58.171276Z"
+    }
+  }
+]

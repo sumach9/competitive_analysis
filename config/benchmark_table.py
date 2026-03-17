@@ -22,61 +22,19 @@ PILLAR_WEIGHTS = {
 }
 
 # ──────────────────────────────────────────────
-# Static Benchmark Table
-# Keys: web_low, web_high, social_low, social_high  (all in %)
-#        w_web, w_soc  (channel reliability weights, sum = 1.0)
+# Static Benchmark Table (AGR Absolute Thresholds)
 # ──────────────────────────────────────────────
 BENCHMARK_TABLE: dict[str, dict] = {
-    "B2B SaaS": {
-        "web_low": 1.0, "web_high": 8.0,
-        "social_low": 1.0, "social_high": 5.0,
-        "w_web": 0.65, "w_soc": 0.35,
-    },
-    "B2C Consumer": {
-        "web_low": 4.0, "web_high": 20.0,
-        "social_low": 3.0, "social_high": 15.0,
-        "w_web": 0.40, "w_soc": 0.60,
-    },
-    "Marketplace": {
-        "web_low": 3.0, "web_high": 12.0,
-        "social_low": 2.0, "social_high": 8.0,
-        "w_web": 0.50, "w_soc": 0.50,
-    },
-    "Fintech": {
-        "web_low": 2.0, "web_high": 10.0,
-        "social_low": 2.0, "social_high": 7.0,
-        "w_web": 0.60, "w_soc": 0.40,
-    },
-    "Healthcare / HealthTech": {
-        "web_low": 1.0, "web_high": 5.0,
-        "social_low": 1.0, "social_high": 4.0,
-        "w_web": 0.65, "w_soc": 0.35,
-    },
-    "Developer Tools": {
-        "web_low": 3.0, "web_high": 10.0,
-        "social_low": 2.0, "social_high": 8.0,
-        "w_web": 0.60, "w_soc": 0.40,
-    },
-    "eCommerce / Retail": {
-        "web_low": 4.0, "web_high": 18.0,
-        "social_low": 3.0, "social_high": 12.0,
-        "w_web": 0.45, "w_soc": 0.55,
-    },
-    "EdTech": {
-        "web_low": 2.0, "web_high": 10.0,
-        "social_low": 2.0, "social_high": 10.0,
-        "w_web": 0.50, "w_soc": 0.50,
-    },
-    "DeepTech / Hardware": {
-        "web_low": 1.0, "web_high": 4.0,
-        "social_low": 1.0, "social_high": 3.0,
-        "w_web": 0.70, "w_soc": 0.30,
-    },
-    "Other": {
-        "web_low": 2.0, "web_high": 10.0,
-        "social_low": 2.0, "social_high": 8.0,
-        "w_web": 0.55, "w_soc": 0.45,
-    },
+    "B2B SaaS":                {"benchmark_min": 1.0, "benchmark_mean": 3.0, "benchmark_max": 8.0},
+    "B2C Consumer":            {"benchmark_min": 3.0, "benchmark_mean": 8.0, "benchmark_max": 20.0},
+    "Marketplace":             {"benchmark_min": 2.0, "benchmark_mean": 5.0, "benchmark_max": 12.0},
+    "Fintech":                 {"benchmark_min": 2.0, "benchmark_mean": 4.0, "benchmark_max": 10.0},
+    "Healthcare / HealthTech": {"benchmark_min": 1.0, "benchmark_mean": 2.5, "benchmark_max": 5.0},
+    "Developer Tools":         {"benchmark_min": 2.0, "benchmark_mean": 4.0, "benchmark_max": 10.0},
+    "eCommerce / Retail":      {"benchmark_min": 3.0, "benchmark_mean": 7.0, "benchmark_max": 18.0},
+    "EdTech":                  {"benchmark_min": 2.0, "benchmark_mean": 4.5, "benchmark_max": 10.0},
+    "DeepTech / Hardware":     {"benchmark_min": 1.0, "benchmark_mean": 2.0, "benchmark_max": 4.0},
+    "Other":                   {"benchmark_min": 2.0, "benchmark_mean": 4.0, "benchmark_max": 10.0},
 }
 
 # Canonical list of market type labels (used for label matching in GTM)

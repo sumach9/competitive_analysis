@@ -1,0 +1,2524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FFP Smart — Suitability Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --cream:    #F5F2EC;
+  --white:    #FEFCF8;
+  --navy:     #0B1220;
+  --navy2:    #1A2540;
+  --navy3:    #263354;
+  --brass:    #B8892A;
+  --brass2:   #D4A843;
+  --brass-bg: #FBF4E3;
+  --brass-bd: #E8D49A;
+  --teal:     #1B7A74;
+  --teal-bg:  #EAF5F4;
+  --teal-bd:  #A8D9D6;
+  --red:      #C0392B;
+  --red-bg:   #FDF0EE;
+  --green:    #1A6B3A;
+  --green-bg: #EBF5EF;
+  --green-bd: #A3D4B5;
+  --slate:    #4A5568;
+  --slate2:   #718096;
+  --slate3:   #A0AEC0;
+  --rule:     #E2DDD4;
+  --rule2:    #EDE9E2;
+  --shadow:   0 2px 12px rgba(11,18,32,0.08);
+  --shadow2:  0 4px 24px rgba(11,18,32,0.12);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--cream);
+  color: var(--navy);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ─── LAYOUT ─── */
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── LEFT RAIL ─── */
+.rail {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--navy);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.rail-top {
+  padding: 32px 28px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.logo-sq {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--brass2), var(--brass));
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 15px;
+  color: var(--navy);
+}
+.logo-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 17px;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+.logo-name span { color: var(--brass2); }
+
+.rail-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 4px;
+}
+.rail-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.5;
+}
+
+/* Pillar nav */
+.rail-nav {
+  padding: 24px 0;
+  flex: 1;
+  overflow-y: auto;
+}
+.rail-nav::-webkit-scrollbar { width: 3px; }
+.rail-nav::-webkit-scrollbar-track { background: transparent; }
+.rail-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.nav-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: background .15s;
+  position: relative;
+  border-left: 2px solid transparent;
+}
+.nav-item:hover { background: rgba(255,255,255,0.04); }
+.nav-item.active {
+  background: rgba(255,255,255,0.06);
+  border-left-color: var(--brass2);
+}
+.nav-item.done { opacity: 0.6; }
+
+.nav-num {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all .2s;
+}
+.nav-item.active .nav-num {
+  border-color: var(--brass2);
+  background: var(--brass2);
+  color: var(--navy);
+}
+.nav-item.done .nav-num {
+  border-color: var(--green-bd);
+  background: transparent;
+  color: #5CC882;
+  font-size: 11px;
+}
+
+.nav-content {}
+.nav-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px; font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.nav-item.active .nav-label { color: rgba(255,255,255,0.9); }
+.nav-name {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.35;
+}
+.nav-item.active .nav-name { color: rgba(255,255,255,0.6); }
+
+.nav-weight {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--brass);
+  margin-top: 4px;
+}
+.nav-item.active .nav-weight { color: var(--brass2); }
+
+/* Progress bar */
+.rail-progress {
+  padding: 20px 28px 28px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+.progress-track {
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--brass), var(--brass2));
+  border-radius: 2px;
+  transition: width .4s ease;
+}
+
+/* ─── MAIN CONTENT ─── */
+.main {
+  flex: 1;
+  min-width: 0;
+  background: var(--white);
+}
+
+/* Section wrapper */
+.section {
+  display: none;
+  animation: fadeIn .25s ease;
+}
+.section.active { display: block; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Section header band */
+.sec-header {
+  padding: 48px 56px 40px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+  overflow: hidden;
+}
+.sec-header::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  opacity: 0.04;
+}
+.p1 .sec-header::before { background: var(--brass); }
+.p2 .sec-header::before { background: var(--teal); }
+.p3 .sec-header::before { background: #E67E22; }
+.p4 .sec-header::before { background: #8B5CF6; }
+
+.pillar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--slate2);
+  letter-spacing: 0.04em;
+  margin-bottom: 14px;
+}
+.pillar-chip .pip {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+
+.sec-h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+.sec-h1 em {
+  font-style: normal;
+  color: var(--brass);
+}
+.sec-desc {
+  font-size: 14px;
+  color: var(--slate);
+  max-width: 600px;
+  line-height: 1.7;
+}
+
+/* ─── INFOGRAPHIC CARD ─── */
+.infographic {
+  margin: 0 56px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--navy);
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+.info-icon { font-size: 13px; }
+
+.info-body {
+  background: var(--cream);
+  padding: 20px;
+  display: grid;
+  gap: 10px;
+}
+.info-body.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.info-body.grid-2 { grid-template-columns: 1fr 1fr; }
+.info-body.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.info-body.single { grid-template-columns: 1fr; }
+
+.info-tile {
+  background: var(--white);
+  border: 1px solid var(--rule2);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.info-tile-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.info-tile-lbl {
+  font-size: 11.5px;
+  color: var(--slate2);
+  line-height: 1.45;
+}
+
+.info-flow {
+  display: grid;
+  gap: 2px;
+}
+.info-flow.cols-4 { grid-template-columns: repeat(4, 1fr); }
+.flow-step {
+  background: var(--white);
+  border: 1px solid var(--rule2);
+  border-radius: 6px;
+  padding: 10px 12px;
+  position: relative;
+}
+.flow-step + .flow-step::before {
+  content: '';
+  position: absolute;
+  left: -8px; top: 50%;
+  transform: translateY(-50%);
+  width: 6px; height: 1px;
+  background: var(--slate3);
+}
+.flow-n {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--brass);
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.flow-t {
+  font-size: 11px;
+  color: var(--navy2);
+  line-height: 1.4;
+  font-weight: 500;
+}
+.flow-s {
+  font-size: 10.5px;
+  color: var(--slate2);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.info-formula {
+  background: var(--navy);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: #A8D4D0;
+  line-height: 1.8;
+}
+.info-formula .comment { color: rgba(255,255,255,0.25); }
+.info-formula .var { color: var(--brass2); }
+.info-formula .op  { color: rgba(255,255,255,0.5); }
+
+.info-score-row {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+.score-band {
+  flex: 1;
+  border-radius: 6px;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+}
+.score-band-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.score-band-lbl { font-size: 10px; color: var(--slate2); line-height: 1.3; }
+
+/* ─── FORM BODY ─── */
+.form-body {
+  padding: 40px 56px 56px;
+}
+
+/* Group divider */
+.grp-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 36px 0 20px;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--slate3);
+}
+.grp-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+.grp-divider:first-child { margin-top: 0; }
+
+/* Question card */
+.qcard {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 14px;
+  transition: border-color .15s, box-shadow .15s;
+  position: relative;
+}
+.qcard:focus-within {
+  border-color: var(--navy3);
+  box-shadow: 0 0 0 3px rgba(11,18,32,0.06);
+}
+.qcard.optional-card { background: var(--cream); }
+.qcard.conditional-card {
+  background: var(--brass-bg);
+  border-color: var(--brass-bd);
+  border-style: dashed;
+}
+.qcard.conditional-card.revealed { border-style: solid; }
+
+/* Question top row */
+.q-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+.q-left { flex: 1; }
+
+.q-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1.35;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.q-hint {
+  font-size: 13px;
+  color: var(--slate2);
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 100px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-family: 'Outfit', sans-serif;
+}
+.badge.req {
+  background: #FFF7E6;
+  color: #8B5A00;
+  border: 1px solid #E8C97A;
+}
+.badge.opt {
+  background: var(--cream);
+  color: var(--slate2);
+  border: 1px solid var(--rule);
+}
+.badge.cond {
+  background: #EEF7F4;
+  color: var(--teal);
+  border: 1px solid var(--teal-bd);
+}
+.badge.seed {
+  background: #F0EEFF;
+  color: #5B4BD1;
+  border: 1px solid #C5BCEF;
+}
+
+/* Info toggle */
+.info-toggle {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--rule);
+  background: var(--cream);
+  color: var(--slate2);
+  font-size: 11px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all .15s;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+}
+.info-toggle:hover {
+  border-color: var(--navy3);
+  color: var(--navy);
+  background: var(--white);
+}
+.info-toggle.open {
+  border-color: var(--brass);
+  color: var(--brass);
+  background: var(--brass-bg);
+}
+
+/* Context panel */
+.context-panel {
+  display: none;
+  background: var(--navy);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.context-panel.open { display: block; }
+.ctx-label {
+  font-family: 'Syne', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass2);
+  margin-bottom: 8px;
+}
+.ctx-body {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.65;
+}
+.ctx-body strong { color: rgba(255,255,255,0.9); font-weight: 500; }
+.ctx-example {
+  margin-top: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.7;
+}
+.ctx-example .hl { color: var(--brass2); }
+
+/* ─── INPUTS ─── */
+input[type=text], input[type=url], input[type=number],
+input[type=email], textarea, select {
+  width: 100%;
+  background: var(--white);
+  border: 1.5px solid var(--rule);
+  border-radius: 7px;
+  color: var(--navy);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+}
+.qcard.optional-card input, .qcard.optional-card textarea,
+.qcard.optional-card select {
+  background: var(--white);
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--navy3);
+  box-shadow: 0 0 0 3px rgba(11,18,32,0.07);
+}
+input::placeholder, textarea::placeholder { color: var(--slate3); }
+textarea { resize: vertical; min-height: 84px; line-height: 1.5; }
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6' fill='none' stroke='%23718096' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 34px;
+  cursor: pointer;
+}
+select option { background: #fff; }
+
+.field-lbl {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--slate);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+.field-lbl .req-star { color: var(--brass); margin-left: 3px; }
+.field-lbl .opt-tag {
+  font-size: 10px;
+  color: var(--slate3);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.mt10 { margin-top: 10px; }
+.mt14 { margin-top: 14px; }
+.mt18 { margin-top: 18px; }
+
+/* ─── CHIP SELECT ─── */
+.chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--white);
+  border: 1.5px solid var(--rule);
+  border-radius: 100px;
+  padding: 7px 16px;
+  font-size: 13px;
+  color: var(--slate2);
+  cursor: pointer;
+  transition: all .12s;
+  user-select: none;
+  font-family: 'Outfit', sans-serif;
+}
+.chip:hover { border-color: var(--navy3); color: var(--navy); }
+.chip.on {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: #fff;
+}
+.chip .ck {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px;
+  flex-shrink: 0;
+  transition: all .12s;
+}
+.chip.on .ck { background: rgba(255,255,255,0.25); }
+
+/* ─── RADIO CARDS ─── */
+.radio-grid { display: grid; gap: 8px; }
+.radio-grid.two-col { grid-template-columns: 1fr 1fr; }
+.radio-grid.three-col { grid-template-columns: 1fr 1fr 1fr; }
+
+.rc {
+  border: 1.5px solid var(--rule);
+  border-radius: 8px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all .12s;
+  user-select: none;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  background: var(--white);
+}
+.rc:hover { border-color: var(--navy3); }
+.rc.on { border-color: var(--navy); background: #F7F8FC; }
+.rc-dot {
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  border: 1.5px solid var(--rule);
+  flex-shrink: 0;
+  margin-top: 1px;
+  position: relative;
+  transition: all .12s;
+}
+.rc.on .rc-dot { border-color: var(--navy); }
+.rc.on .rc-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--navy);
+}
+.rc-main { font-size: 13.5px; font-weight: 500; color: var(--navy); line-height: 1.3; margin-bottom: 2px; }
+.rc-sub  { font-size: 11.5px; color: var(--slate2); line-height: 1.4; }
+
+/* ─── DEPTH PICKER ─── */
+.depth-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.dp {
+  border: 1.5px solid var(--rule);
+  border-radius: 8px;
+  padding: 16px 8px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .12s;
+  background: var(--white);
+}
+.dp:hover { border-color: var(--navy3); }
+.dp.on { border-color: var(--navy); background: var(--navy); }
+.dp-n {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--slate3);
+  line-height: 1;
+  margin-bottom: 8px;
+  transition: color .12s;
+}
+.dp.on .dp-n { color: var(--brass2); }
+.dp-t { font-size: 10.5px; color: var(--slate2); line-height: 1.4; }
+.dp.on .dp-t { color: rgba(255,255,255,0.6); }
+.dp-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 7px;
+  border-radius: 100px;
+  font-size: 9px;
+  font-weight: 600;
+}
+.dp.on .dp-badge { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+.dp.neutral .dp-badge { background: var(--cream); color: var(--slate2); }
+.dp.positive .dp-badge { background: var(--green-bg); color: var(--green); }
+.dp.on.positive .dp-badge { background: rgba(82,200,122,0.15); color: #5CC882; }
+.dp.on.neutral .dp-badge { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
+
+/* ─── DYNAMIC ROWS ─── */
+.dynlist { display: flex; flex-direction: column; gap: 10px; }
+
+.dynrow {
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+.dynrow-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.dynrow-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+.dynrow-del {
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: var(--slate2);
+  cursor: pointer;
+  transition: all .12s;
+  font-family: 'Outfit', sans-serif;
+}
+.dynrow-del:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+.dynrow-fields { display: grid; gap: 10px; }
+.dynrow-fields.g2 { grid-template-columns: 1fr 1fr; }
+
+.add-row {
+  width: 100%;
+  background: none;
+  border: 1.5px dashed var(--rule);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--slate2);
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.01em;
+}
+.add-row:hover {
+  border-color: var(--navy3);
+  color: var(--navy);
+  background: var(--cream);
+}
+
+/* ─── OAUTH STRIP ─── */
+.oauth-strip {
+  border: 1.5px solid var(--rule);
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--white);
+  transition: border-color .15s;
+}
+.oauth-strip:hover { border-color: var(--navy3); }
+.oauth-ico {
+  width: 38px; height: 38px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.oauth-info { flex: 1; }
+.oauth-name { font-size: 13.5px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+.oauth-desc { font-size: 11.5px; color: var(--slate2); }
+.oauth-btn {
+  background: var(--navy);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'Outfit', sans-serif;
+  flex-shrink: 0;
+}
+.oauth-btn:hover { background: var(--navy2); }
+.oauth-btn.connected {
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1.5px solid var(--green-bd);
+}
+
+.divider-or {
+  text-align: center;
+  font-size: 11px;
+  color: var(--slate3);
+  letter-spacing: 0.08em;
+  margin: 12px 0;
+  position: relative;
+}
+.divider-or::before, .divider-or::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  background: var(--rule);
+}
+.divider-or::before { left: 0; }
+.divider-or::after  { right: 0; }
+
+/* ─── UPLOAD ZONE ─── */
+.upload-zone {
+  border: 1.5px dashed var(--rule);
+  border-radius: 8px;
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .15s;
+  background: var(--cream);
+}
+.upload-zone:hover { border-color: var(--navy3); background: #F0EDE6; }
+.uz-icon { font-size: 20px; margin-bottom: 6px; }
+.uz-text { font-size: 12px; color: var(--slate2); line-height: 1.5; }
+.uz-sub { font-size: 11px; color: var(--slate3); margin-top: 2px; }
+
+/* ─── NOTICE STRIP ─── */
+.notice {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 10px;
+}
+.notice.info { background: var(--cream); color: var(--slate2); border: 1px solid var(--rule); }
+.notice.warn { background: var(--brass-bg); color: #7A5500; border: 1px solid var(--brass-bd); }
+.notice.good { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+.notice.teal { background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal-bd); }
+
+/* ─── SCORE PREVIEW (infographic inline) ─── */
+.scoring-preview {
+  background: var(--navy);
+  border-radius: 8px;
+  padding: 16px 18px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+  margin-bottom: 0;
+}
+.sp-col { text-align: center; }
+.sp-val {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.sp-lbl { font-size: 9.5px; color: rgba(255,255,255,0.35); line-height: 1.3; }
+.sp-sep { width: 1px; background: rgba(255,255,255,0.08); margin: 8px auto; }
+
+/* ─── PATENT VERIFICATION FLOW ─── */
+.patent-flow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.pf-step {
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.pf-n {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--brass);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  margin-bottom: 5px;
+}
+.pf-title { font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 3px; }
+.pf-desc  { font-size: 11px; color: var(--slate2); line-height: 1.4; }
+.pf-url   {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  color: var(--teal);
+  margin-top: 5px;
+  word-break: break-all;
+}
+
+/* ─── NAV FOOTER ─── */
+.nav-footer {
+  padding: 28px 56px 36px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--white);
+}
+.nav-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--slate3);
+}
+.nav-back, .nav-next {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px 28px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.nav-back {
+  background: none;
+  border: 1.5px solid var(--rule);
+  color: var(--slate);
+}
+.nav-back:hover { border-color: var(--navy3); color: var(--navy); }
+.nav-next {
+  background: var(--navy);
+  border: 1.5px solid var(--navy);
+  color: #fff;
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-next:hover { background: var(--navy2); }
+.nav-next:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ─── REVIEW SECTION ─── */
+.review-card {
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.review-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--rule);
+}
+.review-pip { width: 8px; height: 8px; border-radius: 50%; }
+.review-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--navy); }
+.review-weight { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--brass); margin-left: auto; }
+.review-body { padding: 16px 20px; }
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 20px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--rule2);
+  font-size: 13px;
+}
+.review-row:last-child { border-bottom: none; }
+.review-row-lbl { color: var(--slate2); flex-shrink: 0; }
+.review-row-val { color: var(--navy); font-weight: 500; text-align: right; word-break: break-word; }
+.review-row-val.missing { color: var(--red); font-weight: 400; font-style: italic; }
+.review-row-val.ok { color: var(--green); }
+
+/* ─── SUCCESS ─── */
+.success-page { display: none; }
+.success-page.active { display: block; }
+
+.success-inner {
+  padding: 80px 56px;
+  text-align: center;
+}
+.success-ring {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--green-bd);
+  background: var(--green-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 28px;
+  animation: pop .4s cubic-bezier(.175,.885,.32,1.275) both;
+}
+@keyframes pop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.success-h {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+.success-sub {
+  font-size: 14.5px;
+  color: var(--slate);
+  max-width: 460px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+.timeline {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 20px 28px;
+  min-width: 340px;
+}
+.tl-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+.tl-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tl-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--slate3);
+  width: 52px;
+  flex-shrink: 0;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .rail { width: 220px; }
+  .sec-header, .form-body, .nav-footer { padding-left: 32px; padding-right: 32px; }
+  .infographic { margin: 0 32px 0; }
+}
+@media (max-width: 680px) {
+  .app { flex-direction: column; }
+  .rail { width: 100%; height: auto; position: static; }
+  .rail-nav { display: none; }
+  .sec-header, .form-body, .nav-footer { padding-left: 20px; padding-right: 20px; }
+  .infographic { margin: 0 20px 0; }
+  .g2, .g3, .depth-grid, .info-body.grid-3, .info-body.grid-4,
+  .radio-grid.two-col, .radio-grid.three-col, .patent-flow { grid-template-columns: 1fr 1fr; }
+  .depth-grid { grid-template-columns: 1fr 1fr 1fr; }
+  .scoring-preview { grid-template-columns: repeat(3, 1fr); }
+  .info-flow.cols-4 { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═══ RAIL ═══ -->
+  <aside class="rail">
+    <div class="rail-top">
+      <div class="logo">
+        <div class="logo-sq">F</div>
+        <div class="logo-name">FFP <span>Smart</span></div>
+      </div>
+      <div class="rail-title">Suitability Assessment</div>
+      <div class="rail-sub">Pre-Seed Stage · 4 pillars · ~15–20 min</div>
+    </div>
+
+    <nav class="rail-nav">
+      <div class="nav-item active" id="nav-0" onclick="goTo(0)">
+        <div class="nav-num" id="navnum-0">1</div>
+        <div class="nav-content">
+          <div class="nav-label">Pillar 1</div>
+          <div class="nav-name">USP & Value Proposition</div>
+          <div class="nav-weight">35% weight</div>
+        </div>
+      </div>
+      <div class="nav-item inactive" id="nav-1" onclick="goTo(1)">
+        <div class="nav-num" id="navnum-1">2</div>
+        <div class="nav-content">
+          <div class="nav-label">Pillar 2</div>
+          <div class="nav-name">Audience Growth Rate</div>
+          <div class="nav-weight">15% weight</div>
+        </div>
+      </div>
+      <div class="nav-item inactive" id="nav-2" onclick="goTo(2)">
+        <div class="nav-num" id="navnum-2">3</div>
+        <div class="nav-content">
+          <div class="nav-label">Pillar 3</div>
+          <div class="nav-name">Pricing & Business Model</div>
+          <div class="nav-weight">20% weight</div>
+        </div>
+      </div>
+      <div class="nav-item inactive" id="nav-3" onclick="goTo(3)">
+        <div class="nav-num" id="navnum-3">4</div>
+        <div class="nav-content">
+          <div class="nav-label">Pillar 4</div>
+          <div class="nav-name">Technical Build Depth</div>
+          <div class="nav-weight">30% weight</div>
+        </div>
+      </div>
+      <div class="nav-item inactive" id="nav-4" onclick="goTo(4)">
+        <div class="nav-num" id="navnum-4">5</div>
+        <div class="nav-content">
+          <div class="nav-label">Final</div>
+          <div class="nav-name">Review & Submit</div>
+          <div class="nav-weight"></div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="rail-progress">
+      <div class="progress-label">
+        <span>Completion</span>
+        <span id="prog-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main">
+
+    <!-- ───────────── SECTION 1 — USP ───────────── -->
+    <section class="section p1 active" id="sec-0">
+      <div class="sec-header">
+        <div class="pillar-chip">
+          <span class="pip" style="background:#B8892A"></span>
+          Pillar 1 · 35% of composite score
+        </div>
+        <h1 class="sec-h1">Differentiating Factor &amp; <em>USP</em></h1>
+        <p class="sec-desc">Tell us exactly what makes your product different. We scrape your competitors' product pages in real time and verify each claim you make — so be specific, not vague. A verified score is worth far more than an unverifiable one.</p>
+      </div>
+
+      <!-- INFOGRAPHIC -->
+      <div class="infographic" style="margin-top:28px">
+        <div class="info-header">
+          <span class="info-icon">⚡</span> How Your USP Score Is Computed
+        </div>
+        <div class="info-body grid-4" style="gap:8px">
+          <div class="flow-step">
+            <div class="flow-n">STEP 01</div>
+            <div class="flow-t">You submit features &amp; unique claims</div>
+            <div class="flow-s">With competitor names you believe don't have them</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-n">STEP 02</div>
+            <div class="flow-t">Tavily scrapes each competitor page</div>
+            <div class="flow-s">Returns clean page text from any public URL</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-n">STEP 03</div>
+            <div class="flow-t">System compares claims vs page text</div>
+            <div class="flow-s">Explicit match only — no inference or guessing</div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-n">RESULT</div>
+            <div class="flow-t">Verified USP Score + Confidence Flag</div>
+            <div class="flow-s">HIGH if ≥3 scraped · MEDIUM if 1 skipped · LOW otherwise</div>
+          </div>
+        </div>
+        <div class="info-body single" style="padding-top:0">
+          <div class="info-formula">
+            <span class="comment"># Formula — denominator is what YOU claimed unique, not total features</span><br>
+            <span class="var">USP_Score</span> <span class="op">=</span> (verified_unique_feature_count <span class="op">÷</span> unique_feature_claim_count) <span class="op">×</span> 100<br>
+            <span class="comment"># Scoring: 80–100%→90pts · 60–79%→78pts · 30–59%→55pts · 0%→20pts(neutral, not penalised)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-body">
+
+        <div class="qcard" style="background:var(--cream); padding:24px; border-radius:12px; text-align:center;">
+          <div style="font-size:24px; margin-bottom:12px;">🔗</div>
+          <div style="font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--navy); margin-bottom:8px;">Data Retrieved Automatically</div>
+          <div style="font-size:14px; color:var(--slate); max-width:400px; margin:0 auto; line-height:1.6;">Your <strong>Startup URL</strong> and <strong>Pitch Deck</strong> are automatically accessed securely from your onboarding resources. No manual upload is required.</div>
+        </div>
+
+        <div class="grp-divider">Total Feature Set</div>
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">All product features <span class="badge req">Required</span></div>
+              <div class="q-hint">List all major features your product currently has (one per line).</div>
+            </div>
+          </div>
+          <textarea id="feature_list" rows="5" placeholder="e.g. User authentication&#10;Data export to CSV&#10;Real-time dashboard"></textarea>
+        </div>
+
+        <div class="grp-divider">Unique Capabilities</div>
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">What are your verifiable unique features? <span class="badge req">Required</span></div>
+              <div class="q-hint">List specific capabilities that you have and your competitors lack.</div>
+            </div>
+          </div>
+          <div class="dynlist" id="unique-list"></div>
+          <button class="add-row mt10" onclick="addUniqueFeature()">+ Add Unique Feature</button>
+        </div>
+
+        <div class="grp-divider">Direct Competitors</div>
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Who are your main competitors? <span class="badge req">Required</span></div>
+              <div class="q-hint">Provide exact URLs to their product or pricing pages so we can scrape and verify your claims.</div>
+            </div>
+          </div>
+          <div class="dynlist" id="comp-list"></div>
+          <button class="add-row mt10" onclick="addCompetitor()">+ Add Competitor</button>
+        </div>
+
+      </div><!-- /form-body -->
+
+      <div class="nav-footer">
+        <span class="nav-counter">Pillar 1 of 4</span>
+        <span></span>
+        <button class="nav-next" onclick="next()">Continue to GTM Growth <span>→</span></button>
+      </div>
+    </section>
+
+    <!-- ───────────── SECTION 2 — AGR ───────────── -->
+    <section class="section p2" id="sec-1">
+      <div class="sec-header">
+        <div class="pillar-chip">
+          <span class="pip" style="background:#1B7A74"></span>
+          Pillar 2 · 15% of composite score
+        </div>
+        <h1 class="sec-h1">Audience Growth Rate <em>&amp; GTM Signal</em></h1>
+        <p class="sec-desc">We measure how fast your audience is growing month-over-month and benchmark it against other startups at your stage in your specific market. This is the primary proxy for early traction before revenue data exists.</p>
+      </div>
+
+      <div class="infographic" style="margin-top:28px">
+        <div class="info-header"><span class="info-icon">📈</span> Two Compute Paths — System Picks Automatically</div>
+        <div class="info-body grid-2" style="gap:8px">
+          <div class="info-tile">
+            <div class="info-tile-val" style="color:#1B7A74; font-size:14px; font-family:'Syne',sans-serif">PATH A — PitchBook</div>
+            <div class="info-tile-lbl" style="margin-top:6px">If your startup is tracked in PitchBook, we pull <strong>webGrowthRate</strong>, <strong>socialGrowthRate</strong>, and <strong>percentile rankings</strong> directly from the API. Z-scores are computed via invNorm of your percentile vs your sector peers. <em>No manual data needed.</em></div>
+          </div>
+          <div class="info-tile">
+            <div class="info-tile-val" style="color:#4A5568; font-size:14px; font-family:'Syne',sans-serif">PATH B — GA4 + Manual</div>
+            <div class="info-tile-lbl" style="margin-top:6px">If PitchBook has no data on you yet (common at early Pre-Seed), we pull sessions from <strong>GA4 Data API</strong> (OAuth) and use your manually entered social counts. Benchmarked against our static market table.</div>
+          </div>
+        </div>
+        <div class="info-body single" style="padding-top:0">
+          <div class="info-formula">
+            <span class="comment"># Path B formulas</span><br>
+            <span class="var">web_growth%</span> <span class="op">=</span> (sessions_curr <span class="op">-</span> sessions_prev) <span class="op">÷</span> sessions_prev <span class="op">×</span> 100<br>
+            <span class="var">AGR_raw</span> <span class="op">=</span> (web_growth% <span class="op">+</span> social_growth%) <span class="op">÷</span> 2 <span class="comment">  # or single channel if one missing</span><br>
+            <span class="var">AudienceGrowthZ</span> <span class="op">=</span> (w_web <span class="op">×</span> z_web) <span class="op">+</span> (w_soc <span class="op">×</span> z_social) <span class="comment">  # weights by market type</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-body">
+
+        <!-- Market context -->
+        <div class="grp-divider">Market Context</div>
+
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">What is your market type? <span class="badge req">Required</span></div>
+              <div class="q-hint">This determines which sector benchmark your growth is compared against. B2B SaaS at 5%/month is strong; B2C Consumer at 5%/month is below average.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-market')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-market">
+            <div class="ctx-label">Benchmark ranges by market type (monthly)</div>
+            <div class="ctx-body">These are the hardcoded benchmark ranges used for scoring (Path B):</div>
+            <div class="ctx-example">
+<span class="hl">B2B SaaS:</span>    web 1–8%,  social 1–5%,  w_web=0.65<br>
+<span class="hl">B2C Consumer:</span> web 4–20%, social 3–15%, w_web=0.40<br>
+<span class="hl">Marketplace:</span>  web 3–12%, social 2–8%,  w_web=0.50<br>
+<span class="hl">Fintech:</span>      web 2–10%, social 2–7%,  w_web=0.60<br>
+<span class="hl">Healthcare:</span>   web 1–5%,  social 1–4%,  w_web=0.65<br>
+<span class="hl">eCommerce:</span>    web 4–18%, social 3–12%, w_web=0.45</div>
+          </div>
+          <div class="field-lbl">Market type <span class="req-star">*</span></div>
+          <select id="market_type">
+            <option value="" disabled selected>Select your market type…</option>
+            <option>B2B SaaS</option>
+            <option>B2C Consumer</option>
+            <option>Marketplace</option>
+            <option>Fintech</option>
+            <option>Healthcare / HealthTech</option>
+            <option>Developer Tools</option>
+            <option>eCommerce / Retail</option>
+            <option>EdTech</option>
+            <option>DeepTech / Hardware</option>
+            <option>Other — describe below</option>
+          </select>
+          <div class="mt10" id="market-other-wrap" style="display:none">
+            <div class="field-lbl">Describe your market <span class="req-star">*</span></div>
+            <input type="text" id="market_other" placeholder="e.g. Legal tech for solo practitioners — AI-assisted contract review">
+            <div class="notice teal mt10">If your market type is not in the list, our AI will fuzzy-match your description to the nearest benchmark row. It does not generate new numbers — only maps you to an existing row.</div>
+          </div>
+        </div>
+
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Geographic focus <span class="badge req">Required · select all that apply</span></div>
+              <div class="q-hint">Select every market you are actively targeting. This provides regional context for interpreting your growth data.</div>
+            </div>
+          </div>
+          <div class="chip-group" id="geo-chips">
+            <div class="chip" onclick="toggleChip(this)"><div class="ck">✓</div>Global</div>
+            <div class="chip" onclick="toggleChip(this)"><div class="ck">✓</div>North America</div>
+            <div class="chip" onclick="toggleChip(this)"><div class="ck">✓</div>Europe</div>
+            <div class="chip" onclick="toggleChip(this)"><div class="ck">✓</div>Asia-Pacific</div>
+            <div class="chip" onclick="toggleChip(this)"><div class="ck">✓</div>Latin America</div>
+            <div class="chip" onclick="toggleChip(this)"><div class="ck">✓</div>Middle East &amp; Africa</div>
+          </div>
+        </div>
+
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Reporting period <span class="badge req">Required</span></div>
+              <div class="q-hint">The two consecutive months you are comparing. Growth is always month-over-month.</div>
+            </div>
+          </div>
+          <div class="g2">
+            <div>
+              <div class="field-lbl">Previous month <span class="req-star">*</span></div>
+              <input type="text" id="period_prev" placeholder="e.g. May 2025">
+            </div>
+            <div>
+              <div class="field-lbl">Current month <span class="req-star">*</span></div>
+              <input type="text" id="period_curr" placeholder="e.g. June 2025">
+            </div>
+          </div>
+        </div>
+
+        <!-- Web traffic -->
+        <div class="grp-divider">Web Traffic Data</div>
+
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Connect Google Analytics 4 (GA4) <span class="badge req">Required — or enter manually</span></div>
+              <div class="q-hint">OAuth connection gives us verified, tamper-proof session data — producing a HIGH confidence score. Manually entered data scores normally but is flagged as WEB_DATA_MANUAL.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-ga4')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-ga4">
+            <div class="ctx-label">What we access and why</div>
+            <div class="ctx-body">We request <strong>read-only</strong> access (scope: analytics.readonly). We pull exactly 2 months of session-by-month data and nothing else. You can revoke access at any time from your Google account settings.<br><br>
+            If you use Plausible, Matomo, Fathom, or another analytics tool — use manual entry below and enter your unique visitor counts for both months.</div>
+          </div>
+          <div class="oauth-strip">
+            <div class="oauth-ico" style="background:linear-gradient(135deg,#4285F4,#34A853)">📊</div>
+            <div class="oauth-info">
+              <div class="oauth-name">Google Analytics 4</div>
+              <div class="oauth-desc">Read-only · session data only · 2 months · revocable anytime</div>
+            </div>
+            <button class="oauth-btn" id="ga4-btn" onclick="connectOAuth('ga4-btn','ga4-prop-wrap')">Connect GA4</button>
+          </div>
+          <div id="ga4-prop-wrap" style="display:none; margin-top:10px">
+            <div class="field-lbl">GA4 Property ID (auto-detected after connection)</div>
+            <input type="text" id="ga4_property_id" placeholder="e.g. 123456789" readonly>
+            <div class="notice good mt10">✓ GA4 connected — session data will be pulled automatically</div>
+          </div>
+          <div class="divider-or">or enter manually</div>
+          <div class="g2">
+            <div>
+              <div class="field-lbl">Unique visitors — previous month <span class="opt-tag">(manual fallback)</span></div>
+              <input type="number" id="web_prev" placeholder="e.g. 10000" min="0">
+            </div>
+            <div>
+              <div class="field-lbl">Unique visitors — current month <span class="opt-tag">(manual fallback)</span></div>
+              <input type="number" id="web_curr" placeholder="e.g. 12000" min="0">
+            </div>
+          </div>
+          <div class="notice warn mt10">⚠ Manual entry is labelled WEB_DATA_MANUAL on the investor dashboard. Connect GA4 above to upgrade to verified data.</div>
+        </div>
+
+        <div class="qcard optional-card">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Connect Google Search Console <span class="badge opt">Optional — enhances score</span></div>
+              <div class="q-hint">Provides keyword impression and click data as a supplementary web visibility signal alongside GA4 sessions.</div>
+            </div>
+          </div>
+          <div class="oauth-strip">
+            <div class="oauth-ico" style="background:linear-gradient(135deg,#EA4335,#FBBC05)">🔍</div>
+            <div class="oauth-info">
+              <div class="oauth-name">Google Search Console</div>
+              <div class="oauth-desc">Read-only · search clicks &amp; impressions · revocable anytime</div>
+            </div>
+            <button class="oauth-btn" id="gsc-btn" onclick="connectOAuth('gsc-btn', null)">Connect GSC</button>
+          </div>
+        </div>
+
+        <!-- Social -->
+        <div class="grp-divider">Social Following Data</div>
+
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Social media follower counts — both months <span class="badge req">Required · min. 1 channel</span></div>
+              <div class="q-hint">Total followers on your primary business social channel. Use the same platform for both months — switching platforms invalidates the comparison.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-social')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-social">
+            <div class="ctx-label">Which platform to use</div>
+            <div class="ctx-body">Use your <strong>primary customer-facing channel</strong> — the one your target audience actually engages with.<br><br>
+            B2B → LinkedIn preferred<br>
+            B2C → Instagram or TikTok preferred<br>
+            Developer tools → Twitter/X or GitHub stars<br><br>
+            Social data is always labelled "founder-submitted, unverified" on the investor dashboard — this is standard and does not reduce your score. Uploading a screenshot upgrades confidence.</div>
+            <div class="ctx-example"><span class="hl">Example:</span><br>
+May followers: 5,000 → June followers: 5,300<br>
+social_growth% = (5300-5000)÷5000×100 = <span class="hl">6.0%</span></div>
+          </div>
+          <div class="field-lbl">Primary social platform <span class="req-star">*</span></div>
+          <select id="social_platform" style="margin-bottom:12px">
+            <option value="" disabled selected>Select platform…</option>
+            <option>LinkedIn</option>
+            <option>Twitter / X</option>
+            <option>Instagram</option>
+            <option>TikTok</option>
+            <option>YouTube</option>
+            <option>Facebook</option>
+            <option>GitHub (stars)</option>
+            <option>Other</option>
+          </select>
+          <div class="g2">
+            <div>
+              <div class="field-lbl">Followers — previous month <span class="req-star">*</span></div>
+              <input type="number" id="social_prev" placeholder="e.g. 5000" min="0">
+            </div>
+            <div>
+              <div class="field-lbl">Followers — current month <span class="req-star">*</span></div>
+              <input type="number" id="social_curr" placeholder="e.g. 5300" min="0">
+            </div>
+          </div>
+          <div class="mt14">
+            <div class="field-lbl">Screenshot evidence <span class="opt-tag">(optional — raises confidence to MEDIUM)</span></div>
+            <div class="upload-zone" onclick="document.getElementById('social-file').click()">
+              <div class="uz-icon">📸</div>
+              <div class="uz-text">Upload screenshots showing follower counts for both months</div>
+              <div class="uz-sub">PNG, JPG, PDF accepted · Max 10MB</div>
+            </div>
+            <input type="file" id="social-file" style="display:none" accept="image/*,.pdf" multiple>
+          </div>
+        </div>
+
+        <!-- EEV -->
+        <div class="grp-divider">Early Engagement Velocity — Supplementary</div>
+
+        <div class="qcard optional-card">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Waitlist &amp; beta user counts <span class="badge opt">Optional supplementary metric</span></div>
+              <div class="q-hint">EEV measures how fast high-intent users engage relative to your total audience. 5% EEV is considered excellent at Seed stage. Leave blank if you have no waitlist or beta programme yet.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-eev')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-eev">
+            <div class="ctx-label">EEV Formula &amp; what it means</div>
+            <div class="ctx-body"><strong>EEV = ((Δ Waitlist + Δ Beta Users) ÷ Unique Visitors) × 100</strong><br><br>
+            This metric captures conversion intent — how many people who discover your product take a high-commitment action (join waitlist or enter beta). It's a leading indicator of product-market pull before you have revenue.</div>
+            <div class="ctx-example"><span class="hl">Example calculation:</span><br>
+Waitlist: May 600 → Jun 800 (Δ = +200)<br>
+Beta: May 100 → Jun 150 (Δ = +50)<br>
+Visitors Jun: 5,000<br>
+EEV = (200+50) ÷ 5000 × 100 = <span class="hl">5.0%</span> ← Excellent</div>
+          </div>
+          <div class="g2">
+            <div>
+              <div class="field-lbl">Waitlist signups — previous month</div>
+              <input type="number" id="waitlist_prev" placeholder="e.g. 600" min="0">
+            </div>
+            <div>
+              <div class="field-lbl">Waitlist signups — current month</div>
+              <input type="number" id="waitlist_curr" placeholder="e.g. 800" min="0">
+            </div>
+          </div>
+          <div class="g2 mt10">
+            <div>
+              <div class="field-lbl">Beta users — previous month</div>
+              <input type="number" id="beta_prev" placeholder="e.g. 100" min="0">
+            </div>
+            <div>
+              <div class="field-lbl">Beta users — current month</div>
+              <input type="number" id="beta_curr" placeholder="e.g. 150" min="0">
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="nav-footer">
+        <button class="nav-back" onclick="prev()">← Back</button>
+        <span class="nav-counter">Pillar 2 of 4</span>
+        <button class="nav-next" onclick="next()">Continue to Pricing <span>→</span></button>
+      </div>
+    </section>
+
+    <!-- ───────────── SECTION 3 — PRICING ───────────── -->
+    <section class="section p3" id="sec-2">
+      <div class="sec-header">
+        <div class="pillar-chip">
+          <span class="pip" style="background:#E67E22"></span>
+          Pillar 3 · 20% of composite score
+        </div>
+        <h1 class="sec-h1">Pricing &amp; <em>Business Model</em></h1>
+        <p class="sec-desc">We want to understand how you plan to make money — not whether you're already making it. Having zero revenue at Pre-Seed is completely normal and carries no penalty. A clear, well-thought-out model earns full marks.</p>
+      </div>
+
+      <div class="infographic" style="margin-top:28px">
+        <div class="info-header"><span class="info-icon">💡</span> Scoring Logic — Clarity Not Revenue</div>
+        <div class="info-body grid-2">
+          <div>
+            <div class="info-score-row">
+              <div class="score-band" style="background:#EBF5EF; border-color:#A3D4B5">
+                <div class="score-band-val" style="color:#1A6B3A">65</div>
+                <div class="score-band-lbl">Clear<br>All 3 fields complete</div>
+              </div>
+              <div class="score-band" style="background:#FBF9F0; border-color:#E8D49A">
+                <div class="score-band-val" style="color:#8B5A00">50</div>
+                <div class="score-band-lbl">Somewhat Clear<br>Model + customer only</div>
+              </div>
+              <div class="score-band" style="background:#FDF0EE; border-color:#E8AAAA">
+                <div class="score-band-val" style="color:#C0392B">35</div>
+                <div class="score-band-lbl">Unclear<br>Missing key fields</div>
+              </div>
+              <div class="score-band" style="background:#F0F4FF; border-color:#B8C8EF">
+                <div class="score-band-val" style="color:#2C4B9A">50</div>
+                <div class="score-band-lbl">Pre-Revenue<br>Forced neutral always</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="info-tile">
+              <div class="info-tile-val" style="color:#1A6B3A; font-size:15px; font-family:'Syne',sans-serif">Zero Penalty for Pre-Revenue</div>
+              <div class="info-tile-lbl" style="margin-top:6px">If revenue = 0, your Pricing score is locked to 50 (neutral midpoint) regardless of how you answer. ARPU data is optional — only used if you have it.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-body">
+
+        <div class="grp-divider">Pricing Model Structure</div>
+
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">What is your pricing model type? <span class="badge req">Required</span></div>
+              <div class="q-hint">Select the model that best describes how customers pay. You can describe a planned model — it doesn't need to be live yet.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-pm')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-pm">
+            <div class="ctx-label">Model type definitions</div>
+            <div class="ctx-body">
+            <strong>Free:</strong> no charge — monetised via ads, data, or future pivot<br>
+            <strong>Freemium:</strong> free tier + paid upgrade for premium features<br>
+            <strong>Subscription:</strong> recurring monthly or annual fee (flat or per-seat)<br>
+            <strong>Usage-Based:</strong> pay per unit consumed (API call, GB, message, transaction)<br>
+            <strong>Transaction Fee:</strong> percentage or flat fee cut from each transaction<br>
+            <strong>Enterprise:</strong> custom contracts, typically multi-year, contact sales<br><br>
+            Choose the model most aligned with your long-term vision, not just current state.</div>
+          </div>
+          <div class="radio-grid two-col" id="pricing_model_type">
+            <div class="rc" onclick="selRc('pricing_model_type',this)"><div class="rc-dot"></div><div><div class="rc-main">Free</div><div class="rc-sub">No charge · monetised indirectly</div></div></div>
+            <div class="rc" onclick="selRc('pricing_model_type',this)"><div class="rc-dot"></div><div><div class="rc-main">Freemium</div><div class="rc-sub">Free tier + paid premium upgrades</div></div></div>
+            <div class="rc" onclick="selRc('pricing_model_type',this)"><div class="rc-dot"></div><div><div class="rc-main">Subscription</div><div class="rc-sub">Recurring monthly or annual fee</div></div></div>
+            <div class="rc" onclick="selRc('pricing_model_type',this)"><div class="rc-dot"></div><div><div class="rc-main">Usage-Based</div><div class="rc-sub">Pay per unit consumed</div></div></div>
+            <div class="rc" onclick="selRc('pricing_model_type',this)"><div class="rc-dot"></div><div><div class="rc-main">Transaction Fee</div><div class="rc-sub">% or flat fee per transaction</div></div></div>
+            <div class="rc" onclick="selRc('pricing_model_type',this)"><div class="rc-dot"></div><div><div class="rc-main">Enterprise / Contact Sales</div><div class="rc-sub">Custom contracts, typically annual</div></div></div>
+            <div class="rc" onclick="selRc('pricing_model_type',this)"><div class="rc-dot"></div><div><div class="rc-main">Other</div><div class="rc-sub">Describe in the notes field below</div></div></div>
+          </div>
+        </div>
+
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Who is your target paying customer? <span class="badge req">Required</span></div>
+              <div class="q-hint">Describe the specific person or company type that will pay. Be precise — "small business owners in construction" beats "SMBs".</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-cust')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-cust">
+            <div class="ctx-label">Payer vs user — important distinction</div>
+            <div class="ctx-body">If the person who uses the product is different from the person who pays for it — describe both. This is common in B2B HR tools, healthcare platforms, and marketplace models.<br><br>
+            <strong>Good examples:</strong><br>
+            "Finance directors at Series A–C UK startups (5–200 employees)"<br>
+            "Employer pays for team access · Employees are end users · IT admin manages the account"</div>
+          </div>
+          <div class="field-lbl">Target paying customer <span class="req-star">*</span></div>
+          <input type="text" id="target_customer" placeholder="e.g. Solo freelancers and small creative agencies (1–10 people) in North America">
+          <div class="mt10">
+            <div class="field-lbl">Who pays vs who uses <span class="opt-tag">(optional — for multi-sided models)</span></div>
+            <input type="text" id="who_pays" placeholder="e.g. Employer pays · Employees use · IT admin manages">
+          </div>
+        </div>
+
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">How does your price scale? (Pricing metric) <span class="badge req">Required</span></div>
+              <div class="q-hint">Describe the unit of value you charge on — how customers understand the price and how it grows as they get more value.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-metric')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-metric">
+            <div class="ctx-label">Pricing metric examples by model</div>
+            <div class="ctx-example">
+<span class="hl">Subscription:</span>  "Per seat / month" or "Flat $X / month per team"<br>
+<span class="hl">Usage-Based:</span>  "Per API call" · "Per GB stored" · "Per active user / month"<br>
+<span class="hl">Transaction:</span>  "2.9% + $0.30 per transaction processed"<br>
+<span class="hl">Enterprise:</span>   "Annual contract — priced by department headcount"<br>
+<span class="hl">Freemium:</span>    "Free up to 5 users · $12/seat/month above that"</div>
+          </div>
+          <div class="field-lbl">Pricing metric <span class="req-star">*</span></div>
+          <input type="text" id="pricing_metric" placeholder="e.g. Per seat / month · or · Per API call · or · 2.9% per transaction">
+        </div>
+
+        <div class="qcard optional-card">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Approximate price range <span class="badge opt">Optional</span></div>
+              <div class="q-hint">Provide a range, a starting price, or type "contact sales". Absence of this field does not lower your score.</div>
+            </div>
+          </div>
+          <div class="field-lbl">Price range <span class="opt-tag">(optional)</span></div>
+          <input type="text" id="price_range" placeholder="e.g. $29–$149 / month  ·  or  ·  from $500 / year  ·  or  ·  contact sales">
+        </div>
+
+        <!-- ARPU -->
+        <div class="grp-divider">Revenue Data — For ARPU Calculation</div>
+
+        <div class="qcard optional-card">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Revenue &amp; active user counts <span class="badge opt">Optional — neutral if blank · no penalty for zero</span></div>
+              <div class="q-hint">ARPU = Total Revenue ÷ Active Users. If revenue = 0, this scores neutral. If ARPU is growing month-over-month, that's a positive signal regardless of absolute value.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-arpu')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-arpu">
+            <div class="ctx-label">ARPU guardrails — how it affects your score</div>
+            <div class="ctx-body">
+            <strong>Rule 1:</strong> ARPU = 0 but business model is defined → Score neutral (not penalised)<br>
+            <strong>Rule 2:</strong> ARPU very low but engagement signals strong → Do not penalise<br>
+            <strong>Rule 3:</strong> ARPU increasing MoM → Positive signal regardless of absolute value<br><br>
+            Source this from Stripe, your accounting system, or an internal dashboard export.</div>
+            <div class="ctx-example"><span class="hl">Example:</span><br>
+Revenue this month: $50,000 · Active users: 1,000<br>
+ARPU = $50,000 ÷ 1,000 = <span class="hl">$50 / user</span></div>
+          </div>
+          <div class="g2">
+            <div>
+              <div class="field-lbl">Total revenue — current period ($) <span class="opt-tag">(enter 0 if pre-revenue)</span></div>
+              <input type="number" id="revenue_curr" placeholder="e.g. 50000" min="0">
+            </div>
+            <div>
+              <div class="field-lbl">Active paying users — current period</div>
+              <input type="number" id="paying_users_curr" placeholder="e.g. 1000" min="0">
+            </div>
+          </div>
+          <div class="g2 mt10">
+            <div>
+              <div class="field-lbl">Total revenue — previous period ($) <span class="opt-tag">(for trend)</span></div>
+              <input type="number" id="revenue_prev" placeholder="e.g. 40000" min="0">
+            </div>
+            <div>
+              <div class="field-lbl">Active paying users — previous period <span class="opt-tag">(for trend)</span></div>
+              <input type="number" id="paying_users_prev" placeholder="e.g. 900" min="0">
+            </div>
+          </div>
+          <div class="mt10">
+            <div class="field-lbl">Revenue evidence link <span class="opt-tag">(Stripe export, accounting URL)</span></div>
+            <input type="url" id="arpu_evidence" placeholder="https://dashboard.stripe.com/…">
+          </div>
+        </div>
+
+        <!-- Evidence -->
+        <div class="grp-divider">Evidence &amp; Notes</div>
+
+        <div class="qcard optional-card">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Pricing page or pitch deck slide URL <span class="badge opt">Optional</span></div>
+              <div class="q-hint">Link to where your pricing is publicly described or documented in your pitch materials.</div>
+            </div>
+          </div>
+          <div class="field-lbl">Pricing evidence URL</div>
+          <input type="url" id="pricing_evidence" placeholder="https://yoursite.com/pricing  ·  or  ·  https://deck.link/slide-14">
+          <div class="mt10">
+            <div class="field-lbl">Paying customer segment <span class="badge seed" style="margin-left:4px">Seed-stage only · captured now · not scored</span></div>
+            <input type="text" id="paying_segment" placeholder="e.g. 3 paying pilot clients — accounting firms at $299/month">
+            <div class="notice info mt10">This field is stored for your Seed-stage re-evaluation. It has zero impact on your current Pre-Seed suitability score.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="nav-footer">
+        <button class="nav-back" onclick="prev()">← Back</button>
+        <span class="nav-counter">Pillar 3 of 4</span>
+        <button class="nav-next" onclick="next()">Continue to Technology <span>→</span></button>
+      </div>
+    </section>
+
+    <!-- ───────────── SECTION 4 — TECH BUILD ───────────── -->
+    <section class="section p4" id="sec-3">
+      <div class="sec-header">
+        <div class="pillar-chip">
+          <span class="pip" style="background:#8B5CF6"></span>
+          Pillar 4 · 30% of composite score
+        </div>
+        <h1 class="sec-h1">Technical Build Depth <em>&amp; IP</em></h1>
+        <p class="sec-desc">We assess whether your product has meaningful proprietary technology. No-code is not penalised — what matters is deliberate build choices. If you have a patent, declaring it earns bonus points on top of your base score. No patent declared means no penalty, ever.</p>
+      </div>
+
+      <div class="infographic" style="margin-top:28px">
+        <div class="info-header"><span class="info-icon">🔧</span> Deterministic Scoring — No AI Involved</div>
+        <div class="info-body grid-2">
+          <div class="info-tile">
+            <div class="info-tile-val" style="font-size:11px; font-family:'Syne',sans-serif; color:var(--slate); letter-spacing:0.06em; text-transform:uppercase">Base Score by Depth Level</div>
+            <div style="margin-top:8px; display:flex; flex-direction:column; gap:4px">
+              <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0; border-bottom:1px solid var(--rule2)"><span style="color:var(--slate2)">0 — No custom build</span><span style="font-family:'JetBrains Mono',monospace; color:var(--navy)">45 pts · Neutral</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0; border-bottom:1px solid var(--rule2)"><span style="color:var(--slate2)">25 — Light custom</span><span style="font-family:'JetBrains Mono',monospace; color:var(--navy)">50 pts · Neutral</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0; border-bottom:1px solid var(--rule2)"><span style="color:var(--slate2)">50 — Meaningful custom</span><span style="font-family:'JetBrains Mono',monospace; color:#1A6B3A">70 pts · Positive</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0; border-bottom:1px solid var(--rule2)"><span style="color:var(--slate2)">75 — Significant proprietary</span><span style="font-family:'JetBrains Mono',monospace; color:#1A6B3A">78 pts · Positive</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0"><span style="color:var(--slate2)">100 — Deep IP</span><span style="font-family:'JetBrains Mono',monospace; color:#1A6B3A">85 pts · Positive</span></div>
+            </div>
+          </div>
+          <div class="info-tile">
+            <div class="info-tile-val" style="font-size:11px; font-family:'Syne',sans-serif; color:var(--slate); letter-spacing:0.06em; text-transform:uppercase">Patent Bonus (additive only)</div>
+            <div style="margin-top:8px; display:flex; flex-direction:column; gap:4px">
+              <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0; border-bottom:1px solid var(--rule2)"><span style="color:var(--slate2)">USPTO-verified Granted</span><span style="font-family:'JetBrains Mono',monospace; color:#1B7A74">+10 pts</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0; border-bottom:1px solid var(--rule2)"><span style="color:var(--slate2)">USPTO-verified Pending</span><span style="font-family:'JetBrains Mono',monospace; color:#1B7A74">+8 pts</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0; border-bottom:1px solid var(--rule2)"><span style="color:var(--slate2)">Founder-declared (unverified)</span><span style="font-family:'JetBrains Mono',monospace; color:var(--slate2)">+0 pts</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:12px; padding:4px 0"><span style="color:var(--slate2)">No patent declared</span><span style="font-family:'JetBrains Mono',monospace; color:var(--slate2)">+0 pts · no penalty</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-body">
+
+        <div class="grp-divider">Build Depth Level</div>
+
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">What best describes your current technical build? <span class="badge req">Required</span></div>
+              <div class="q-hint">Select the level that honestly reflects your stack. No-code teams are not penalised — early-stage speed matters more than depth at Pre-Seed.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-depth')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-depth">
+            <div class="ctx-label">What each level means in practice</div>
+            <div class="ctx-example">
+<span class="hl">Level 0:</span> Webflow + Zapier + Airtable. No custom code.<br>
+<span class="hl">Level 25:</span> Shopify with custom liquid theme + some API integrations.<br>
+<span class="hl">Level 50:</span> Custom-built web app. Proprietary data models. Own deployment on AWS/GCP.<br>
+<span class="hl">Level 75:</span> Custom ML models, proprietary algorithms, novel technical architecture.<br>
+<span class="hl">Level 100:</span> Foundational technology — unique model, new protocol, novel hardware design.</div>
+          </div>
+
+          <div class="depth-grid" id="depth-grid">
+            <div class="dp neutral" data-v="0" onclick="selDepth(this)">
+              <div class="dp-n">0</div>
+              <div class="dp-t">No custom build<br>No-code / config only</div>
+              <div class="dp-badge">Neutral</div>
+            </div>
+            <div class="dp neutral" data-v="25" onclick="selDepth(this)">
+              <div class="dp-n">25</div>
+              <div class="dp-t">Light custom<br>Some code on existing tools</div>
+              <div class="dp-badge">Neutral</div>
+            </div>
+            <div class="dp positive" data-v="50" onclick="selDepth(this)">
+              <div class="dp-n">50</div>
+              <div class="dp-t">Meaningful custom<br>Significant proprietary code</div>
+              <div class="dp-badge">Positive</div>
+            </div>
+            <div class="dp positive" data-v="75" onclick="selDepth(this)">
+              <div class="dp-n">75</div>
+              <div class="dp-t">Significant proprietary<br>Core product is custom</div>
+              <div class="dp-badge">Positive</div>
+            </div>
+            <div class="dp positive" data-v="100" onclick="selDepth(this)">
+              <div class="dp-n">100</div>
+              <div class="dp-t">Deep IP<br>Unique algorithms / architecture</div>
+              <div class="dp-badge">Positive</div>
+            </div>
+          </div>
+
+          <div id="depth-notice" style="display:none" class="mt10"></div>
+        </div>
+
+        <!-- Evidence (conditional) -->
+        <div class="qcard conditional-card" id="evidence-card">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title" id="ev-title">Technical build evidence <span class="badge cond" id="ev-badge">Required at depth ≥ 50</span></div>
+              <div class="q-hint">Provide at least one link showing your custom build. Required when depth ≥ 50 — the system will block submission without it at higher depth levels.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-ev')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-ev">
+            <div class="ctx-label">Accepted evidence types</div>
+            <div class="ctx-body">Any link that lets a reviewer verify your technical claims:<br><br>
+            <strong>GitHub repository</strong> — public repo or read-only share link<br>
+            <strong>Live demo URL</strong> — working product demonstrating the custom build<br>
+            <strong>Technical documentation</strong> — architecture doc, system design, API docs<br>
+            <strong>Technical blog post</strong> — published article describing what was built<br>
+            <strong>Patent filing URL</strong> — USPTO application page<br><br>
+            Make sure all links are accessible before submitting.</div>
+          </div>
+          <div class="dynlist" id="evidence-list">
+            <div class="dynrow">
+              <div class="dynrow-fields g2">
+                <div>
+                  <div class="field-lbl">Evidence URL <span class="req-star">*</span></div>
+                  <input type="url" placeholder="https://github.com/your-org/repo">
+                </div>
+                <div>
+                  <div class="field-lbl">Type</div>
+                  <select>
+                    <option value="" disabled selected>Select…</option>
+                    <option>GitHub Repository</option>
+                    <option>Live Demo</option>
+                    <option>Technical Documentation</option>
+                    <option>Technical Blog Post</option>
+                    <option>Patent Filing URL</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="add-row mt10" onclick="addEvidence()">+ Add Another Evidence Link</button>
+          <div class="mt14">
+            <div class="field-lbl">Brief description of what you built <span class="opt-tag">(optional)</span></div>
+            <textarea id="tech_description" rows="3" placeholder="e.g. We built a proprietary graph database optimised for real-time fraud detection. Core matching algorithm processes 10,000 tx/sec at sub-5ms — no off-the-shelf solution achieves this at our price point."></textarea>
+          </div>
+        </div>
+
+        <!-- Patent -->
+        <div class="grp-divider">Patent Status — Bonus Points Only · No Penalty</div>
+
+        <div class="qcard">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Do you have a patent related to your product? <span class="badge opt">Optional · additive only · zero penalty if none</span></div>
+              <div class="q-hint">Declaring a patent triggers automatic verification against three free government databases. A verified result adds bonus points to your base score. No match found — base score is unchanged. No declaration — no mention, no penalty.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-pat')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-pat">
+            <div class="ctx-label">Patent verification — what happens automatically</div>
+            <div class="ctx-body">When you declare a patent, our system runs a 3-step async verification using free official US government APIs. It does not block your score — the base score is shown immediately. The patent bonus is added when verification completes.<br><br>
+            <strong>New applications</strong> take 12–18 months to appear in public USPTO records. If yours isn't found, you'll see "Founder-declared, unverified" — this does NOT reduce your score. It simply means the record isn't public yet.</div>
+          </div>
+
+          <div class="radio-grid three-col" id="patent_status_sel">
+            <div class="rc" onclick="selRc('patent_status_sel',this); showPatentFields('none')"><div class="rc-dot"></div><div><div class="rc-main">No patent</div><div class="rc-sub">Not declared · no impact</div></div></div>
+            <div class="rc" onclick="selRc('patent_status_sel',this); showPatentFields('pending')"><div class="rc-dot"></div><div><div class="rc-main">Patent Pending</div><div class="rc-sub">Application filed · not yet granted</div></div></div>
+            <div class="rc" onclick="selRc('patent_status_sel',this); showPatentFields('granted')"><div class="rc-dot"></div><div><div class="rc-main">Patent Granted</div><div class="rc-sub">Granted by USPTO or other office</div></div></div>
+          </div>
+        </div>
+
+        <!-- Patent detail fields -->
+        <div class="qcard conditional-card" id="patent-detail-card" style="display:none">
+          <div class="q-top">
+            <div class="q-left">
+              <div class="q-title">Patent details — for automatic verification <span class="badge cond">Conditional · triggered by patent declaration</span></div>
+              <div class="q-hint">Provide your USPTO application or patent number for the fastest and most reliable verification. Inventor names and company name are used as fallback search methods if no number is available.</div>
+            </div>
+            <button class="info-toggle" onclick="toggleCtx('ctx-patdet')">?</button>
+          </div>
+          <div class="context-panel" id="ctx-patdet">
+            <div class="ctx-label">Where to find your patent number</div>
+            <div class="ctx-body">
+            <strong>Application number format:</strong> 16/123,456 or 16123456<br>
+            <strong>Patent number format (granted):</strong> US10,123,456 or 10123456<br><br>
+            Find it on: USPTO filing confirmation email · your patent attorney's correspondence · Google Patents (search your company name)</div>
+          </div>
+
+          <!-- Auto-verification flow display -->
+          <div class="patent-flow">
+            <div class="pf-step">
+              <div class="pf-n">STEP 01 — Most Reliable</div>
+              <div class="pf-title">USPTO Open Data Portal</div>
+              <div class="pf-desc">Verifies by application or patent number. Returns status, filing date, assignee name.</div>
+              <div class="pf-url">data.uspto.gov/apis/patent-file-wrapper/application-data/{appNumber}</div>
+            </div>
+            <div class="pf-step">
+              <div class="pf-n">STEP 02 — Broader Discovery</div>
+              <div class="pf-title">PatentsView API</div>
+              <div class="pf-desc">Searches by company name or inventor name across all US granted patents.</div>
+              <div class="pf-url">api.patentsview.org/patents/query?q={assignee_organization}</div>
+            </div>
+            <div class="pf-step">
+              <div class="pf-n">STEP 03 — Ownership Confirm</div>
+              <div class="pf-title">Patent Assignment Search</div>
+              <div class="pf-desc">Confirms patent is assigned to your company (vs individual or holding entity).</div>
+              <div class="pf-url">assignment-api.uspto.gov/patent/search?assignee={company}</div>
+            </div>
+          </div>
+
+          <div class="notice teal" style="margin-bottom:14px">All three APIs are free, require no authentication, and are official US government sources. Verification runs asynchronously — your score is computed immediately; the patent bonus is added when the result arrives.</div>
+
+          <div class="dynlist" id="patent-list">
+            <div class="dynrow">
+              <div class="dynrow-head">
+                <div class="dynrow-title">Patent #1</div>
+              </div>
+              <div class="dynrow-fields g2">
+                <div>
+                  <div class="field-lbl">USPTO Application or Patent Number</div>
+                  <input type="text" class="patent-num-input" placeholder="e.g. 16/123,456  or  US10,123,456">
+                </div>
+                <div>
+                  <div class="field-lbl">Patent Title / Short Description</div>
+                  <input type="text" class="patent-title-input" placeholder="e.g. Method for real-time anomaly detection">
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="add-row mt10" onclick="addPatent()">+ Add Another Patent</button>
+
+          <div class="g2 mt14">
+            <div>
+              <div class="field-lbl">Inventor names <span class="opt-tag">(fallback if no patent number)</span></div>
+              <input type="text" id="inventor_names" placeholder="e.g. Jane Smith, Amir Khan">
+            </div>
+            <div>
+              <div class="field-lbl">Patent assignee <span class="opt-tag">(if different from startup name)</span></div>
+              <input type="text" id="assignee_name" placeholder="e.g. Smith Ventures LLC">
+            </div>
+          </div>
+          <div class="notice info mt10">If the patent is held by a holding company or a previous company name, enter it in the assignee field. This is used in the Assignment Search step to confirm ownership.</div>
+        </div>
+
+      </div>
+      <div class="nav-footer">
+        <button class="nav-back" onclick="prev()">← Back</button>
+        <span class="nav-counter">Pillar 4 of 4</span>
+        <button class="nav-next" onclick="next()">Review &amp; Submit <span>→</span></button>
+      </div>
+    </section>
+
+    <!-- ───────────── SECTION 5 — REVIEW ───────────── -->
+    <section class="section" id="sec-4">
+      <div class="sec-header">
+        <div class="pillar-chip">
+          <span class="pip" style="background:#4A5568"></span>
+          Final Step
+        </div>
+        <h1 class="sec-h1">Review &amp; <em>Submit</em></h1>
+        <p class="sec-desc">Review your responses before submitting. Once submitted, your assessment is locked for scoring. Changes after submission require FFP admin approval with a logged reason.</p>
+      </div>
+
+      <div class="form-body">
+
+        <div id="review-output"></div>
+
+        <!-- Data notice -->
+        <div class="qcard" style="background:var(--cream); margin-top:20px">
+          <div class="q-title" style="margin-bottom:10px; font-size:13px; color:var(--slate)">📋 Data &amp; Scoring Notice</div>
+          <div style="display:flex; flex-direction:column; gap:7px">
+            <div class="notice info">All data sources are disclosed to investors on the dashboard — including which values are founder-submitted vs independently verified.</div>
+            <div class="notice info">Social follower data without a screenshot is labelled "founder-submitted, unverified". This is standard and does not reduce your score.</div>
+            <div class="notice info">Patent "not found" means the record isn't yet public — it does not mean you don't have a patent. No penalty is applied.</div>
+            <div class="notice warn">⚠ Submitting locks your assessment. Any change requires FFP admin approval with a reason logged in the audit trail.</div>
+          </div>
+        </div>
+
+        <!-- Declaration -->
+        <div class="qcard mt14">
+          <div class="q-title" style="margin-bottom:12px">Declaration <span class="badge req">Required to submit</span></div>
+          <div id="decl-item" class="rc" style="align-items:flex-start; cursor:pointer" onclick="toggleDecl()">
+            <div class="rc-dot" id="decl-dot"></div>
+            <div style="font-size:13.5px; color:var(--navy); line-height:1.6">I confirm that all information provided in this assessment is accurate to the best of my knowledge. I understand this assessment will be used by FFP and its investor partners to evaluate my startup's suitability for investment consideration.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="nav-footer">
+        <button class="nav-back" onclick="prev()">← Back</button>
+        <span class="nav-counter"></span>
+        <button class="nav-next" id="submit-btn" onclick="submitForm()" disabled style="opacity:0.4;cursor:not-allowed">Submit Assessment <span>→</span></button>
+      </div>
+    </section>
+
+    <!-- ───────────── SUCCESS ───────────── -->
+    <div class="success-page" id="success-page">
+      <div class="success-inner">
+        <div class="success-ring">✓</div>
+        <div class="success-h">Assessment Submitted</div>
+        <p class="success-sub">Your suitability assessment is being processed. Your composite score will be ready in approximately 5 minutes. Patent verification (if applicable) runs in the background and will update your score when complete.</p>
+        <div class="timeline">
+          <div style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--brass);margin-bottom:6px">Processing Timeline</div>
+          <div class="tl-row"><div class="tl-dot" style="background:#1A6B3A"></div><div class="tl-time">Instant</div><div>USP competitor scraping started · Build depth scored</div></div>
+          <div class="tl-row"><div class="tl-dot" style="background:#1A6B3A"></div><div class="tl-time">~2 min</div><div>GA4 / PitchBook data pulled · AGR computed</div></div>
+          <div class="tl-row"><div class="tl-dot" style="background:#1A6B3A"></div><div class="tl-time">~5 min</div><div>Composite suitability score live on dashboard</div></div>
+          <div class="tl-row"><div class="tl-dot" style="background:#E8C97A"></div><div class="tl-time">Async</div><div>Patent verification via USPTO · score updates if matched</div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+let cur = 0;
+const total = 5;
+let done = new Set();
+let declChecked = false;
+let depthVal = null;
+let patentStatus = 'none';
+let featureCount = 0, compCount = 0, evidCount = 1, patCount = 1;
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function show(n) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('success-page').classList.remove('active');
+  if (n >= total) {
+    document.getElementById('success-page').classList.add('active');
+    updateRail(-1);
+    return;
+  }
+  document.getElementById(`sec-${n}`).classList.add('active');
+  cur = n;
+  updateRail(n);
+  updateProgress();
+  if (n === 4) buildReview();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function next() { done.add(cur); show(cur + 1); }
+function prev() { show(cur - 1); }
+function goTo(n) {
+  if (n <= cur || done.has(n-1) || n === 0) show(n);
+}
+function updateRail(active) {
+  for (let i = 0; i < total; i++) {
+    const navEl = document.getElementById(`nav-${i}`);
+    const numEl = document.getElementById(`navnum-${i}`);
+    if (!navEl) continue;
+    navEl.className = 'nav-item';
+    if (i === active) navEl.classList.add('active');
+    else if (done.has(i)) { navEl.classList.add('done'); numEl.textContent = '✓'; }
+    else { navEl.classList.add('inactive'); numEl.textContent = i + 1; }
+  }
+}
+function updateProgress() {
+  const pct = Math.round((done.size / (total - 1)) * 100);
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+}
+
+// ─── Context panels ───────────────────────────────────────────────────────────
+function toggleCtx(id) {
+  const el = document.getElementById(id);
+  const btn = el.previousElementSibling;
+  el.classList.toggle('open');
+  if (btn && btn.classList.contains('info-toggle')) btn.classList.toggle('open', el.classList.contains('open'));
+}
+
+// ─── Chips ───────────────────────────────────────────────────────────────────
+function toggleChip(el) { el.classList.toggle('on'); }
+
+// ─── Radio cards ─────────────────────────────────────────────────────────────
+function selRc(groupId, el) {
+  document.querySelectorAll(`#${groupId} .rc`).forEach(r => r.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// ─── Market type "other" ──────────────────────────────────────────────────────
+document.getElementById('market_type').addEventListener('change', function() {
+  const wrap = document.getElementById('market-other-wrap');
+  wrap.style.display = this.value === 'Other — describe below' ? 'block' : 'none';
+});
+
+// ─── Depth picker ─────────────────────────────────────────────────────────────
+function selDepth(el) {
+  document.querySelectorAll('#depth-grid .dp').forEach(d => d.classList.remove('on'));
+  el.classList.add('on');
+  depthVal = parseInt(el.dataset.v);
+  const notice = document.getElementById('depth-notice');
+  const evCard = document.getElementById('evidence-card');
+  const evBadge = document.getElementById('ev-badge');
+
+  if (depthVal >= 50) {
+    evCard.classList.add('revealed');
+    evBadge.textContent = 'Required at your depth level';
+    evBadge.className = 'badge req';
+    notice.innerHTML = '<div class="notice warn">⚠ At depth level ' + depthVal + ', at least one evidence link is required. The form cannot be submitted without it.</div>';
+    notice.style.display = 'block';
+  } else {
+    evCard.classList.remove('revealed');
+    evBadge.textContent = 'Optional at depth < 50';
+    evBadge.className = 'badge opt';
+    notice.innerHTML = '<div class="notice good">✓ Evidence links are optional at depth level ' + depthVal + ' — but providing them strengthens your profile.</div>';
+    notice.style.display = 'block';
+  }
+}
+
+// ─── Patent visibility ────────────────────────────────────────────────────────
+function showPatentFields(status) {
+  patentStatus = status;
+  const card = document.getElementById('patent-detail-card');
+  card.style.display = (status === 'none') ? 'none' : 'block';
+  if (status !== 'none') card.classList.add('revealed');
+}
+
+// ─── OAuth simulation ─────────────────────────────────────────────────────────
+function connectOAuth(btnId, propWrapId) {
+  const btn = document.getElementById(btnId);
+  btn.textContent = 'Connecting…';
+  setTimeout(() => {
+    btn.textContent = '✓ Connected';
+    btn.classList.add('connected');
+    if (propWrapId) {
+      const wrap = document.getElementById(propWrapId);
+      wrap.style.display = 'block';
+      document.getElementById('ga4_property_id').value = '3' + Math.floor(Math.random()*90000000+10000000);
+    }
+  }, 1100);
+}
+
+// ─── Dynamic: unique features ─────────────────────────────────────────────────
+function addUniqueFeature() {
+  featureCount++;
+  const list = document.getElementById('unique-list');
+  const d = document.createElement('div');
+  d.className = 'dynrow';
+  d.innerHTML = `
+    <div class="dynrow-head">
+      <div class="dynrow-title">Unique Feature Claim #${featureCount}</div>
+      <button class="dynrow-del" onclick="this.closest('.dynrow').remove()">Remove</button>
+    </div>
+    <div class="dynrow-fields" style="grid-template-columns:1fr">
+      <div>
+        <div class="field-lbl">Feature name <span class="req-star">*</span></div>
+        <input type="text" placeholder="e.g. Automated 90-day cash flow forecasting">
+      </div>
+      <div>
+        <div class="field-lbl">What makes it unique — describe the capability specifically <span class="req-star">*</span></div>
+        <textarea rows="2" placeholder="e.g. Pulls bank feed data automatically and generates forecasts with zero manual input. No competitor offers this without requiring a CSV upload or manual data entry step."></textarea>
+      </div>
+      <div>
+        <div class="field-lbl">Which competitors do NOT have this? <span class="req-star">*</span></div>
+        <input type="text" placeholder="e.g. Xero, QuickBooks, FreshBooks — names must match your competitor entries below">
+      </div>
+      <div>
+        <div class="field-lbl">URL on your site showing this feature <span class="opt-tag">(optional)</span></div>
+        <input type="url" placeholder="https://yoursite.com/features/cash-flow">
+      </div>
+    </div>`;
+  list.appendChild(d);
+}
+
+// ─── Dynamic: competitors ─────────────────────────────────────────────────────
+function addCompetitor() {
+  compCount++;
+  const list = document.getElementById('comp-list');
+  const d = document.createElement('div');
+  d.className = 'dynrow';
+  d.innerHTML = `
+    <div class="dynrow-head">
+      <div class="dynrow-title">Competitor #${compCount}</div>
+      <button class="dynrow-del" onclick="this.closest('.dynrow').remove()">Remove</button>
+    </div>
+    <div class="dynrow-fields g2">
+      <div>
+        <div class="field-lbl">Competitor name <span class="req-star">*</span></div>
+        <input type="text" placeholder="e.g. Xero">
+      </div>
+      <div>
+        <div class="field-lbl">Product page URL <span class="req-star">*</span></div>
+        <input type="url" placeholder="https://xero.com/features">
+      </div>
+      <div>
+        <div class="field-lbl">Company domain <span class="opt-tag">(optional — for PitchBook enrichment)</span></div>
+        <input type="text" placeholder="xero.com">
+      </div>
+      <div>
+        <div class="field-lbl">Competitor type</div>
+        <select>
+          <option value="" disabled selected>Select…</option>
+          <option>Direct Competitor</option>
+          <option>Indirect Competitor</option>
+          <option>Alternative Solution</option>
+        </select>
+      </div>
+    </div>`;
+  list.appendChild(d);
+}
+
+// ─── Dynamic: evidence ────────────────────────────────────────────────────────
+function addEvidence() {
+  evidCount++;
+  const list = document.getElementById('evidence-list');
+  const d = document.createElement('div');
+  d.className = 'dynrow';
+  d.innerHTML = `
+    <div class="dynrow-head">
+      <div class="dynrow-title">Evidence Link #${evidCount}</div>
+      <button class="dynrow-del" onclick="this.closest('.dynrow').remove()">Remove</button>
+    </div>
+    <div class="dynrow-fields g2">
+      <div>
+        <div class="field-lbl">URL <span class="req-star">*</span></div>
+        <input type="url" placeholder="https://github.com/your-org/repo">
+      </div>
+      <div>
+        <div class="field-lbl">Type</div>
+        <select>
+          <option value="" disabled selected>Select…</option>
+          <option>GitHub Repository</option>
+          <option>Live Demo</option>
+          <option>Technical Documentation</option>
+          <option>Technical Blog Post</option>
+          <option>Patent Filing URL</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>`;
+  list.appendChild(d);
+}
+
+// ─── Dynamic: patents ─────────────────────────────────────────────────────────
+function addPatent() {
+  patCount++;
+  const list = document.getElementById('patent-list');
+  const d = document.createElement('div');
+  d.className = 'dynrow';
+  d.innerHTML = `
+    <div class="dynrow-head">
+      <div class="dynrow-title">Patent #${patCount}</div>
+      <button class="dynrow-del" onclick="this.closest('.dynrow').remove()">Remove</button>
+    </div>
+    <div class="dynrow-fields g2">
+      <div>
+        <div class="field-lbl">USPTO Application or Patent Number</div>
+        <input type="text" class="patent-num-input" placeholder="e.g. 16/123,456">
+      </div>
+      <div>
+        <div class="field-lbl">Patent Title / Short Description</div>
+        <input type="text" class="patent-title-input" placeholder="Brief description">
+      </div>
+    </div>`;
+  list.appendChild(d);
+}
+
+// ─── Declaration ──────────────────────────────────────────────────────────────
+function toggleDecl() {
+  declChecked = !declChecked;
+  document.getElementById('decl-item').classList.toggle('on', declChecked);
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = !declChecked;
+  btn.style.opacity = declChecked ? '1' : '0.4';
+  btn.style.cursor = declChecked ? 'pointer' : 'not-allowed';
+}
+
+// ─── Review builder ───────────────────────────────────────────────────────────
+function buildReview() {
+  const sel = (id) => {
+    const s = document.querySelector(`#${id} .rc.on .rc-main`);
+    return s ? s.textContent : null;
+  };
+  const chips = () => Array.from(document.querySelectorAll('#geo-chips .chip.on')).map(c => c.textContent.trim()).join(', ') || null;
+  const depth = () => { const d = document.querySelector('#depth-grid .dp.on'); return d ? `Level ${d.dataset.v} — ${d.querySelector('.dp-t').textContent.replace(/\n/g,' ')}` : null; };
+  const ga4 = document.getElementById('ga4-btn').classList.contains('connected') ? '✓ GA4 Connected (verified data)' : 'Not connected — using manual entry';
+
+  const sections = [
+    { title: 'USP & Value Proposition', color: '#B8892A', weight: '35%', rows: [
+      { l: 'Total features listed', v: (document.getElementById('feature_list').value.trim().split('\n').filter(x=>x.trim()).length || 0) + ' features' },
+      { l: 'Unique feature claims', v: document.querySelectorAll('#unique-list .dynrow').length + ' claim(s)' },
+      { l: 'Competitors added', v: document.querySelectorAll('#comp-list .dynrow').length + ' competitor(s) — min. 3 required' },
+    ]},
+    { title: 'Audience Growth Rate', color: '#1B7A74', weight: '15%', rows: [
+      { l: 'Market type', v: document.getElementById('market_type').value || null },
+      { l: 'Geographic focus', v: chips() },
+      { l: 'Reporting period', v: (document.getElementById('period_prev').value && document.getElementById('period_curr').value) ? document.getElementById('period_prev').value + ' → ' + document.getElementById('period_curr').value : null },
+      { l: 'GA4 connection', v: ga4 },
+      { l: 'Social platform', v: document.getElementById('social_platform').value || null },
+      { l: 'Social followers prev → curr', v: (document.getElementById('social_prev').value && document.getElementById('social_curr').value) ? document.getElementById('social_prev').value + ' → ' + document.getElementById('social_curr').value : null },
+    ]},
+    { title: 'Pricing & Business Model', color: '#E67E22', weight: '20%', rows: [
+      { l: 'Pricing model', v: sel('pricing_model_type') },
+      { l: 'Target customer', v: document.getElementById('target_customer').value || null },
+      { l: 'Pricing metric', v: document.getElementById('pricing_metric').value || null },
+      { l: 'Price range', v: document.getElementById('price_range').value || 'Not provided (optional)' },
+      { l: 'Revenue (current period)', v: document.getElementById('revenue_curr').value ? '$' + parseInt(document.getElementById('revenue_curr').value).toLocaleString() : 'Not provided (optional)' },
+    ]},
+    { title: 'Technical Build Depth', color: '#8B5CF6', weight: '30%', rows: [
+      { l: 'Build depth level', v: depth() },
+      { l: 'Evidence links', v: document.querySelectorAll('#evidence-list .dynrow').length + ' link(s) provided' },
+      { l: 'Patent status declared', v: sel('patent_status_sel') || 'Not selected' },
+    ]},
+  ];
+
+  document.getElementById('review-output').innerHTML = sections.map(s => `
+    <div class="review-card">
+      <div class="review-head">
+        <div class="review-pip" style="background:${s.color}"></div>
+        <div class="review-title">${s.title}</div>
+        <div class="review-weight">${s.weight}</div>
+      </div>
+      <div class="review-body">
+        ${s.rows.map(r => `
+          <div class="review-row">
+            <span class="review-row-lbl">${r.l}</span>
+            <span class="review-row-val ${!r.v || r.v === 'null' ? 'missing' : ''}">${r.v || 'Not provided'}</span>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ─── Submit ───────────────────────────────────────────────────────────────────
+async function submitForm() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting API Request...';
+
+  const sel = (id) => {
+    const s = document.querySelector(`#${id} .rc.on .rc-main`);
+    return s ? s.textContent : '';
+  };
+  const chips = () => Array.from(document.querySelectorAll('#geo-chips .chip.on'))
+    .map(c => c.textContent.replace('✓', '').trim()).join(', ');
+
+  const unique_feature_list = [];
+  document.querySelectorAll('#unique-list .dynrow-fields').forEach(row => {
+    const inputs = row.querySelectorAll('input, textarea');
+    if (inputs[0].value) {
+      unique_feature_list.push({
+        feature_name: inputs[0].value,
+        description: inputs[1].value,
+        not_in_competitors: inputs[2].value ? inputs[2].value.split(',').map(s => s.trim()) : [],
+        own_product_url: inputs[3].value
+      });
+    }
+  });
+
+  const competitors = [];
+  document.querySelectorAll('#comp-list .dynrow-fields').forEach(row => {
+    const inputs = row.querySelectorAll('input, select');
+    if (inputs[0].value) {
+      competitors.push({
+        name: inputs[0].value,
+        product_url: inputs[1].value,
+        domain: inputs[2].value
+      });
+    }
+  });
+
+  const patent_numbers = [];
+  document.querySelectorAll('#patent-list .patent-num-input').forEach(input => {
+    if (input.value) patent_numbers.push(input.value);
+  });
+  
+  const tech_evidence_links = [];
+  document.querySelectorAll('#evidence-list input[type="url"]').forEach(input => {
+    if (input.value) tech_evidence_links.push(input.value);
+  });
+
+  const pricing_evidence = document.getElementById('pricing_evidence')?.value;
+  
+  let patentStatusMapping = "None";
+  const rawStatus = sel('patent_status_sel');
+  if (rawStatus.includes('Granted')) patentStatusMapping = "Granted";
+  else if (rawStatus.includes('Pending')) patentStatusMapping = "Pending";
+
+  const payload = {
+    company_name: "Startup via UI",
+    company_stage: "Pre-Seed",
+    startup_domain: document.getElementById('startup_url')?.value || "",
+    market_type: document.getElementById('market_type')?.value || "Unknown",
+    geographic_focus: chips(),
+    feature_list: document.getElementById('feature_list') ? document.getElementById('feature_list').value.split('\n').map(s => s.trim()).filter(s => s) : [],
+    unique_feature_list: unique_feature_list,
+    competitors: competitors,
+    web_visitors_prev: parseInt(document.getElementById('web_prev')?.value) || 0,
+    web_visitors_curr: parseInt(document.getElementById('web_curr')?.value) || 0,
+    social_followers_prev: parseInt(document.getElementById('social_prev')?.value) || 0,
+    social_followers_curr: parseInt(document.getElementById('social_curr')?.value) || 0,
+    pricing_model_type: sel('pricing_model_type') || "Subscription",
+    target_customer: document.getElementById('target_customer')?.value || "",
+    pricing_metric: document.getElementById('pricing_metric')?.value || "",
+    price_range: document.getElementById('price_range')?.value || "",
+    who_pays_vs_who_uses: document.getElementById('who_pays')?.value || "",
+    paying_segment: document.getElementById('paying_segment')?.value || "",
+    pricing_evidence_links: pricing_evidence ? [pricing_evidence] : [],
+    total_revenue: parseFloat(document.getElementById('revenue_curr')?.value) || 0,
+    custom_build_level: depthVal || 0,
+    patent_status: patentStatusMapping,
+    patent_numbers: patent_numbers,
+    inventor_names: [],
+    assignee_company_name: document.getElementById('assignee_name')?.value || "",
+    tech_evidence_links: tech_evidence_links,
+    tech_description: document.getElementById('tech_description')?.value || "",
+    run_patent_verification: true
+  };
+
+  try {
+    // Pitch deck is getting pulled directly from onboarding resources in the backend
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(payload));
+
+    const res = await fetch('http://localhost:8000/score', {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    
+    const result = await res.json();
+    console.log("Scoring Result:", result);
+    
+    // Create a visual result on the success page viewing the JSON without showing the overall score
+    const displayResult = { ...result };
+    delete displayResult.composite_score;
+    delete displayResult.suitability_label;
+
+    const successDiv = document.querySelector('.success-inner');
+    successDiv.innerHTML += `
+      <div style="margin-top:40px; background:var(--white); border:1.5px solid var(--rule); border-radius:12px; padding:24px; text-align:left;">
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:600;color:var(--navy);line-height:1.5;margin-bottom:12px;">Detailed Assessment Results</div>
+        <pre style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--slate);background:var(--cream);padding:16px;border-radius:8px;overflow-x:auto;">${JSON.stringify(displayResult, null, 2)}</pre>
+      </div>
+    `;
+    
+    done.add(4);
+    show(total);
+  } catch (err) {
+    console.error(err);
+    alert("Failed to connect to API. Is it running on port 8000?");
+    btn.disabled = false;
+    btn.textContent = 'Submit Assessment →';
+  }
+}
+
+// ─── Init: No pre-population needed for deck upload ──────────────────────────
+addUniqueFeature();
+addCompetitor();
+addEvidence();
+addPatent();
+</script>
+</body>
+</html>

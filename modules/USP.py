@@ -5,12 +5,11 @@ Weight: 35% of composite score (Pre-Seed)
 
 Automation flow:
   1. Receive founder Q1 inputs: feature_list[], unique_feature_list[], competitors[]
-  2. Optionally enrich competitor metadata via PitchBook API (display only, no scoring)
-  3. For each competitor URL → Tavily Extract API (scrape page text)
-  4. For each unique feature claim → Fuzzy verification vs relevant competitor pages
-  5. Compute USP_Score = (verified_unique / claimed_unique) × 100
-  6. Assign Confidence Flag and pillar score via spec-compliant thresholds
-  7. Return all stored output fields
+  2. For each competitor URL → Tavily Extract API (scrape page text)
+  3. For each unique feature claim → TF-IDF vectorization vs relevant competitor pages
+  4. Compute USP_Score = (verified_unique / claimed_unique) × 100
+  5. Assign Confidence Flag and pillar score via spec-compliant thresholds
+  6. Return all stored output fields
 
 CRITICAL: denominator = unique_feature_claim_count (NOT total_feature_count).
 """
@@ -20,6 +19,8 @@ import os
 import requests
 import re
 from typing import Optional, List, Dict
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # ──────────────────────────────────────────────
 # Constants
@@ -50,17 +51,17 @@ def _lookup_pillar_score(usp_score: float, confidence: str) -> tuple[Optional[in
             # Fallback for lower confidence but high score
             return 78, "Strong differentiation — partially verified"
     
-    if 60 <= usp_score <= 79:
+    if usp_score >= 60:
         if confidence == "HIGH":
             return 78, "Good differentiation — verified"
         if confidence == "MEDIUM":
             return 62, "Good differentiation — partial verification"
         return 55, "Good differentiation — low confidence verification"
 
-    if 30 <= usp_score <= 59:
+    if usp_score >= 30:
         return 55, "Moderate differentiation"
 
-    if 1 <= usp_score <= 29:
+    if usp_score > 0:
         return 35, "Limited differentiation — few claims verified"
 
     return 20, "No uniqueness verified — NEUTRAL, not a fail"
@@ -90,92 +91,48 @@ def _tavily_extract(url: str, api_key: str) -> Optional[str]:
         return None
 
 
-def _fuzzy_match_verify(
+def _tfidf_match_verify(
     feature_name: str,
     feature_description: str,
     competitor_pages: List[Dict[str, str]],
 ) -> List[str]:
     """
-    Check if a feature claim is present on competitor pages using explicit text matching.
-    Returns names of competitors found to have explicit mentions.
-    
-    Task: explicit text matching only — no inference.
+    Check if a feature claim is present on competitor pages using TF-IDF and
+    cosine similarity matching. A similarity score > 0.65 means the feature
+    is DISPUTED (found on a competitor's site), per the spec.
     """
     found_on = []
-    
-    # Tokenize feature claim for strict comparison
-    # Focus on significant words (len > 3) to reduce noise
-    # We use a higher threshold to ensure "explicit" matching
-    name_clean = feature_name.lower().strip()
-    desc_clean = feature_description.lower().strip()
-    
-    # Significant tokens from description
-    # Changed from {5,} to {4,} to catch words like 'risk', 'maps', 'data'
-    desc_tokens = set(re.findall(r'\b[a-z]{4,}\b', desc_clean))
-    
-    for page in competitor_pages:
-        page_text = page.get('text', '').lower()
-        if not page_text:
-            continue
-            
-        # 1. Check for Feature Name (Strongest indicator)
-        # If the feature name (word-for-word) exists, it's disputed.
-        if name_clean and name_clean in page_text:
-            found_on.append(page['name'])
-            continue
 
-        # 2. Check for token density (Fall back)
-        # Lowered from 0.75 to 0.50 to catch more matches while remaining "explicit"
-        if not desc_tokens:
+    # Combine claim name and description to form the target query
+    query_text = f"{feature_name} {feature_description}".lower().strip()
+
+    if not query_text:
+        return found_on
+
+    vectorizer = TfidfVectorizer(stop_words="english")
+
+    for page in competitor_pages:
+        raw_text = page.get('text')
+        if not raw_text:
             continue
+        page_text = raw_text.lower()
             
-        match_count = sum(1 for token in desc_tokens if token in page_text)
-        match_rate = match_count / len(desc_tokens)
-        
-        if match_rate >= 0.50: 
-            found_on.append(page['name'])
+        # Fit vectorizer on the corpus: [query, competitor_page_text]
+        try:
+            tfidf_matrix = vectorizer.fit_transform([query_text, page_text])
+            similarity_score = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+            
+            # 0.65 is the threshold defined in the spec
+            if similarity_score > 0.65:
+                found_on.append(page['name'])
+        except ValueError:
+            # Vectorizer may raise ValueError if the text contains no words
+            continue
             
     return found_on
 
 
-def _pitchbook_enrich(domain: str, api_key: str) -> dict:
-    """Enrich competitor metadata (display only)."""
-    if not domain or not api_key:
-        return {}
-    try:
-        # Note: Spec says GET /companies/{id} by domain. 
-        # Usually requires a search first if ID isn't known.
-        lookup = requests.get(
-            "https://api.pitchbook.com/companies",
-            headers={"Authorization": f"Bearer {api_key}"},
-            params={"domain": domain},
-            timeout=10,
-        )
-        lookup.raise_for_status()
-        companies = lookup.json().get("data", [])
-        if not companies:
-            return {}
-        
-        # Get details for first match
-        company_id = companies[0].get("id")
-        if not company_id:
-            return {}
-            
-        detail = requests.get(
-            f"https://api.pitchbook.com/companies/{company_id}",
-            headers={"Authorization": f"Bearer {api_key}"},
-            timeout=10,
-        )
-        detail.raise_for_status()
-        d = detail.json()
-        return {
-            "name": d.get("companyName"),
-            "sector": d.get("primarySector"),
-            "stage": d.get("stage"),
-            "description": d.get("shortDescription"),
-        }
-    except Exception:
-        return {}
+
 
 
 # ──────────────────────────────────────────────
@@ -208,7 +165,6 @@ def compute_usp_score(
     unique_feature_list: List[Dict],
     competitors: List[Dict],
     tavily_api_key: str = "",
-    pitchbook_api_key: str = "",
 ) -> Dict:
     """
     Compute the USP pillar score based on validation against competitor pages.
@@ -225,27 +181,14 @@ def compute_usp_score(
             "disputed_features": [],
             "skipped_competitors": [],
             "Confidence_Flag": "LOW",
+            "validation_score": 0,
             "compute_status": "InsufficientData",
             "pillar_score": None,
-            "dashboard_status": "InsufficientData",
-            "data_provenance_note": DATA_PROVENANCE_NOTE,
-            "pitchbook_competitor_data": []
+            "dashboard_status": "Insufficient feature claims for deterministic comparison",
+            "data_provenance_note": DATA_PROVENANCE_NOTE
         }
 
-    # ── PitchBook enrichment (display only)
-    pitchbook_competitor_data = []
-    for comp in competitors:
-        domain = comp.get("domain", "")
-        meta = {}
-        if pitchbook_api_key and domain:
-            meta = _pitchbook_enrich(domain, pitchbook_api_key)
-        
-        pitchbook_competitor_data.append({
-            "name": comp.get("name"),
-            "sector": meta.get("sector"),
-            "stage": meta.get("stage"),
-            "description": meta.get("description"),
-        })
+
 
     # ── Tavily Extract per competitor URL
     scraped_pages: Dict[str, Dict] = {} # name -> {url, text}
@@ -273,6 +216,9 @@ def compute_usp_score(
 
     # ── Guard: All URLs failed
     if not scraped_pages and competitors:
+        v_score_fail = 0
+        if len(competitors) >= 3:
+            v_score_fail += 40
         return {
             "USP_Score": 0.0,
             "unique_feature_claim_count": unique_feature_claim_count,
@@ -280,39 +226,35 @@ def compute_usp_score(
             "disputed_features": [],
             "skipped_competitors": skipped_competitors,
             "Confidence_Flag": "LOW",
+            "validation_score": min(v_score_fail, 100),
             "compute_status": "AllURLsFailed",
             "pillar_score": 20,
             "dashboard_status": "All URLs unreachable — neutral score assigned",
-            "data_provenance_note": DATA_PROVENANCE_NOTE,
-            "pitchbook_competitor_data": pitchbook_competitor_data
+            "data_provenance_note": DATA_PROVENANCE_NOTE
         }
 
-    # ── Verify Unique Claims
+    # ── Step 3: Verification (TF-IDF vs Scraped Competitors)
     disputed_features_out = []
-    scraped_list = list(scraped_pages.values())
-    
-    # We check each claimed unique feature against ALL successfully scraped competitor pages
-    # Note: Founder can specify 'not_in_competitors', but spec says "check against EACH scraped competitor page"
-    # to find if it is disputed.
-    
-    disputed_feature_names = set()
+    verified_count = 0
+
     for feat in unique_feature_list:
-        feat_name = feat.get("feature_name", "Unnamed Feature")
+        feat_name = feat.get("feature_name", "")
         feat_desc = feat.get("description", "")
         
-        found_on = _fuzzy_match_verify(feat_name, feat_desc, scraped_list)
+        # New function: deterministic TF-IDF scoring against competitor pages
+        found_on_comps = _tfidf_match_verify(feat_name, feat_desc, list(scraped_pages.values()))
         
-        if found_on:
-            disputed_feature_names.add(feat_name)
-            for comp_name in found_on:
-                disputed_features_out.append({
-                    "feature_name": feat_name,
-                    "found_on_competitor": comp_name
-                })
+        if found_on_comps:
+            disputed_features_out.append({
+                "feature": feat_name,
+                "found_on": found_on_comps,
+                "note": "Feature found on competitor page (similarity > 0.65)"
+            })
+        else:
+            verified_count += 1
 
     # ── Computations
-    disputed_count = len(disputed_feature_names)
-    verified_count = unique_feature_claim_count - disputed_count
+    disputed_count = unique_feature_claim_count - verified_count
     
     usp_score = (verified_count / unique_feature_claim_count) * 100
     
@@ -322,6 +264,17 @@ def compute_usp_score(
         skipped_count=len(skipped_competitors),
         total_competitors=len(competitors)
     )
+
+    # ── Validation Score ──
+    v_score = 0
+    total_comps = len(competitors)
+    if total_comps >= 3:
+        v_score += 40
+    if total_comps > 0:
+        v_score += int(30 * (len(scraped_pages) / total_comps))
+    if confidence_flag == "HIGH":
+        v_score += 30
+    validation_score = min(v_score, 100)
 
     # Pillar Score
     pillar_score, dashboard_status = _lookup_pillar_score(usp_score, confidence_flag)
@@ -333,7 +286,7 @@ def compute_usp_score(
         "disputed_features": disputed_features_out,
         "skipped_competitors": skipped_competitors,
         "Confidence_Flag": confidence_flag,
-        "pitchbook_competitor_data": pitchbook_competitor_data,
+        "validation_score": validation_score,
         "compute_status": "OK",
         "pillar_score": pillar_score,
         "dashboard_status": dashboard_status,

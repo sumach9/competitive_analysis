@@ -1,11 +1,9 @@
+# Add scikit-learn
 fastapi
-uvicorn
 pydantic
-numpy
-scipy
+uvicorn
+httpx
 requests
-google-generativeai
-google-auth
-google-auth-oauthlib
-google-analytics-data
-google-api-python-client
+rapidfuzz
+scipy
+scikit-learn
