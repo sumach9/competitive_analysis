@@ -1,12 +1,12 @@
 import json
 import logging
-import boto3
-from botocore.exceptions import ClientError 
+import os
+import requests
 
 def generate_local_llm_summary(composite_score: float, suitability_label: str, pillar_results: dict) -> str:
     """
-    Generate an executive summary of the startup's performance using an AWS Bedrock Foundation Model.
-    Expects AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION) to be configured in the environment.
+    Generate an executive summary of the startup's performance using Groq API.
+    Expects GROQ_API_KEY to be configured in the environment or uses the default provided.
     """
     
     # Construct a prompt based on the score and pillars
@@ -41,31 +41,37 @@ Please structure your response with an 'Overall Summary' paragraph, followed by 
 """
 
     try:
-        # Initialize the Bedrock client. Region logic defaults to us-east-1 if not set in AWS setup.
-        client = boto3.client('bedrock-runtime', region_name='us-east-1')
-        model_id = 'anthropic.claude-3-haiku-20240307-v1:0'
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            raise ValueError("GROQ_API_KEY environment variable is missing")
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
         
-        request_body = json.dumps({
-            "anthropic_version": "bedrock-2023-05-31",
+        request_body = {
+            "model": "llama-3.3-70b-versatile",
+            "messages": [{"role": "user", "content": prompt}],
             "max_tokens": 1000,
-            "temperature": 0.2,
-            "messages": [{"role": "user", "content": prompt}]
-        })
+            "temperature": 0.2
+        }
         
-        response = client.invoke_model(
-            modelId=model_id,
-            body=request_body,
-            accept='application/json',
-            contentType='application/json'
-        )
+        response = requests.post(url, headers=headers, json=request_body)
+        response.raise_for_status()
         
-        response_body = json.loads(response.get('body').read())
-        return response_body['content'][0]['text'].strip()
+        response_data = response.json()
+        return response_data['choices'][0]['message']['content'].strip()
         
-    except ClientError as e:
-        error_msg = e.response.get('Error', {}).get('Message', str(e))
-        logging.error(f"AWS Bedrock ClientError: {error_msg}")
-        return f"AWS Bedrock Summary generation failed: {error_msg}"
+    except requests.exceptions.RequestException as e:
+        error_msg = str(e)
+        if hasattr(e, 'response') and e.response is not None:
+            try:
+                error_msg = e.response.json().get('error', {}).get('message', e.response.text)
+            except ValueError:
+                error_msg = e.response.text
+        logging.error(f"Groq API Error: {error_msg}")
+        return f"Groq Summary generation failed: {error_msg}"
     except Exception as e:
-        logging.error(f"Error generating LLM summary via Bedrock: {e}")
-        return f"AWS Bedrock Summary generation failed: {str(e)}"
+        logging.error(f"Error generating LLM summary via Groq: {e}")
+        return f"Groq Summary generation failed: {str(e)}"
